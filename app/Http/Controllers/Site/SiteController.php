@@ -11,4 +11,14 @@ class SiteController extends Controller
     {
         return view('site.home');
     }
+
+    public function cekKoneksi ()
+    {
+        try {
+            \DB::connection()->getPdo();
+            return 'Koneksi database berhasil!';
+        } catch (\Exception $e) {
+            return 'Gagal koneksi ke database: ' . $e->getMessage();
+        }
+    }
 }

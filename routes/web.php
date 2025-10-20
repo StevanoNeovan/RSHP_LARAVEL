@@ -7,8 +7,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/cek-koneksi', [SiteController::class, 'cekKoneksi'])->name('site.cek-koneksi');
+
 Route::get('/home', [SiteController::class, 'index'])->name('home');
 
+// Static Pages Routes
 Route::get('/', function () {
     return view('site.home');
 });
@@ -30,5 +33,9 @@ Route::get('/kontak', function () {
 });
 
 Route::get('/login', function () {
-    return view('auth.login'); // kalau nanti kamu buat halaman login
+    return view('auth.login'); 
 });
+
+// Admin Routes
+Route::get('/admin/jenis-hewan', [App\Http\Controllers\Admin\JenisHewanController::class, 'index'])->name('admin.jenis-hewan.index');
+Route::get('/admin/pemilik', [App\Http\Controllers\Admin\PemilikController::class, 'index'])->name('admin.pemilik.index');
