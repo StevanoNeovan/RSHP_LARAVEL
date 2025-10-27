@@ -15,7 +15,7 @@ class Role extends Model
     protected $fillable = ['nama_role'];
 
     // 🔗 Relasi ke RoleUser (One to Many)
-    public function roleUsers()
+    public function roleUser()
     {
         return $this->hasMany(RoleUser::class, 'idrole', 'idrole');
     }

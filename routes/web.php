@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\KodeTindakanTerapiController;
 use App\Http\Controllers\Admin\RoleUserController;
 use App\Http\Controllers\Admin\PemilikController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\DashboardAdminController;
+use App\Http\Controllers\Resepsionis\DashboardResepsionisController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,6 +21,8 @@ Route::get('/', function () {
 Route::get('/cek-koneksi', [SiteController::class, 'cekKoneksi'])->name('site.cek-koneksi');
 
 Route::get('/home', [SiteController::class, 'index'])->name('home');
+
+Auth::routes();
 
 // Static Pages Routes
 Route::get('/', function () {
@@ -46,8 +51,8 @@ Route::get('/login', function () {
 
 // Admin Routes
 
-Route::prefix('admin')->name('admin.')->group(function() {
-    
+Route::middleware(['isAdministrator'])->group(function() {
+    Route::resource('dashboard', DashboardAdminController::class);
     Route::resource('jenis-hewan', JenisHewanController::class);
     Route::resource('ras-hewan', RasHewanController::class);
     Route::resource('kategori', KategoriController::class);
@@ -58,4 +63,8 @@ Route::prefix('admin')->name('admin.')->group(function() {
     Route::resource('pemilik', PemilikController::class);
 });
 
+// Resepsionis Routes
+Route::middleware(['isResepsionis'])->group(function() {
+    Route::resource('dashboard-resepsionis', DashboardResepsionisController::class);
+});
 

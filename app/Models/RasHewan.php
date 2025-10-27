@@ -24,7 +24,7 @@ class RasHewan extends Model
     }
 
     // 🔗 Relasi ke Pet (One to Many)
-    public function pets()
+    public function pet()
     {
         return $this->hasMany(Pet::class, 'idras_hewan', 'idras_hewan');
     }
