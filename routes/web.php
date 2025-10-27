@@ -1,7 +1,15 @@
 <?php
 
 use App\Http\Controllers\Site\SiteController;
+use App\Http\Controllers\Admin\JenisHewanController;
+use App\Http\Controllers\Admin\RasHewanController;
+use App\Http\Controllers\Admin\KategoriController;
+use App\Http\Controllers\Admin\KategoriKlinisController;
+use App\Http\Controllers\Admin\RoleController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\KodeTindakanTerapiController;
+use App\Http\Controllers\Admin\RoleUserController;
+use App\Http\Controllers\Admin\PemilikController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,5 +45,17 @@ Route::get('/login', function () {
 });
 
 // Admin Routes
-Route::get('/admin/jenis-hewan', [App\Http\Controllers\Admin\JenisHewanController::class, 'index'])->name('admin.jenis-hewan.index');
-Route::get('/admin/pemilik', [App\Http\Controllers\Admin\PemilikController::class, 'index'])->name('admin.pemilik.index');
+
+Route::prefix('admin')->name('admin.')->group(function() {
+    
+    Route::resource('jenis-hewan', JenisHewanController::class);
+    Route::resource('ras-hewan', RasHewanController::class);
+    Route::resource('kategori', KategoriController::class);
+    Route::resource('kategori-klinis', KategoriKlinisController::class);
+    Route::resource('role', RoleController::class);
+    Route::resource('kode-tindakan-terapi', KodeTindakanTerapiController::class);
+    Route::resource('role-user', RoleUserController::class);
+    Route::resource('pemilik', PemilikController::class);
+});
+
+

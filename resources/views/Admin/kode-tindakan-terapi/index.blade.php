@@ -1,11 +1,11 @@
-<h1>Daftar Pemilik</h1>
+<h1>Daftar Kode Tindakan Terapi</h1>
 
 @if(session('success'))
     <p style="color: green;">{{ session('success') }}</p>
 @endif
 
-<a href="{{ route('admin.pemilik.create') }}">
-    <button>Tambah Pemilik</button>
+<a href="{{ route('admin.kode-tindakan-terapi.create') }}">
+    <button>Tambah Kode Tindakan Terapi</button>
 </a>
 
 <br><br>
@@ -14,27 +14,27 @@
     <thead>
         <tr>
             <th>No</th>
-            <th>Nama</th>
-            <th>Email</th>
-            <th>No. WhatsApp</th>
-            <th>Alamat</th>
+            <th>Kode</th>
+            <th>Deskripsi</th>
+            <th>Kategori</th>
+            <th>Kategori Klinis</th>
             <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
-        @forelse ($pemilik as $index => $p)
+        @forelse ($kodeTindakanTerapi as $index => $kode)
         <tr>
             <td>{{ $index + 1 }}</td>
-            <td>{{ $p->user->nama }}</td>
-            <td>{{ $p->user->email }}</td>
-            <td>{{ $p->no_wa }}</td>
-            <td>{{ $p->alamat }}</td>
+            <td>{{ $kode->kode }}</td>
+            <td>{{ $kode->deskripsi_tindakan_terapi }}</td>
+            <td>{{ $kode->kategori->nama_kategori }}</td>
+            <td>{{ $kode->kategoriKlinis->nama_kategori_klinis }}</td>
             <td>
-                <a href="{{ route('admin.pemilik.edit', $p->idpemilik) }}">
+                <a href="{{ route('admin.kode-tindakan-terapi.edit', $kode->idkode_tindakan_terapi) }}">
                     <button>Edit</button>
                 </a>
                 
-                <form action="{{ route('admin.pemilik.destroy', $p->idpemilik) }}" 
+                <form action="{{ route('admin.kode-tindakan-terapi.destroy', $kode->idkode_tindakan_terapi) }}" 
                       method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')

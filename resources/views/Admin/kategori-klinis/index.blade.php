@@ -1,11 +1,11 @@
-<h1>Daftar Pemilik</h1>
+<h1>Daftar Kategori Klinis</h1>
 
 @if(session('success'))
     <p style="color: green;">{{ session('success') }}</p>
 @endif
 
-<a href="{{ route('admin.pemilik.create') }}">
-    <button>Tambah Pemilik</button>
+<a href="{{ route('admin.kategori-klinis.create') }}">
+    <button>Tambah Kategori Klinis</button>
 </a>
 
 <br><br>
@@ -14,27 +14,21 @@
     <thead>
         <tr>
             <th>No</th>
-            <th>Nama</th>
-            <th>Email</th>
-            <th>No. WhatsApp</th>
-            <th>Alamat</th>
+            <th>Nama Kategori Klinis</th>
             <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
-        @forelse ($pemilik as $index => $p)
+        @forelse ($kategoriKlinis as $index => $kat)
         <tr>
             <td>{{ $index + 1 }}</td>
-            <td>{{ $p->user->nama }}</td>
-            <td>{{ $p->user->email }}</td>
-            <td>{{ $p->no_wa }}</td>
-            <td>{{ $p->alamat }}</td>
+            <td>{{ $kat->nama_kategori_klinis }}</td>
             <td>
-                <a href="{{ route('admin.pemilik.edit', $p->idpemilik) }}">
+                <a href="{{ route('admin.kategori-klinis.edit', $kat->idkategori_klinis) }}">
                     <button>Edit</button>
                 </a>
                 
-                <form action="{{ route('admin.pemilik.destroy', $p->idpemilik) }}" 
+                <form action="{{ route('admin.kategori-klinis.destroy', $kat->idkategori_klinis) }}" 
                       method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
@@ -46,7 +40,7 @@
         </tr>
         @empty
         <tr>
-            <td colspan="6">Tidak ada data</td>
+            <td colspan="3">Tidak ada data</td>
         </tr>
         @endforelse
     </tbody>

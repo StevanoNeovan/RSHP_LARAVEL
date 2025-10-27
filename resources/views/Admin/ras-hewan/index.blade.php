@@ -1,11 +1,11 @@
-<h1>Daftar Pemilik</h1>
+<h1>Daftar Ras Hewan</h1>
 
 @if(session('success'))
     <p style="color: green;">{{ session('success') }}</p>
 @endif
 
-<a href="{{ route('admin.pemilik.create') }}">
-    <button>Tambah Pemilik</button>
+<a href="{{ route('admin.ras-hewan.create') }}">
+    <button>Tambah Ras Hewan</button>
 </a>
 
 <br><br>
@@ -14,27 +14,23 @@
     <thead>
         <tr>
             <th>No</th>
-            <th>Nama</th>
-            <th>Email</th>
-            <th>No. WhatsApp</th>
-            <th>Alamat</th>
+            <th>Nama Ras</th>
+            <th>Jenis Hewan</th>
             <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
-        @forelse ($pemilik as $index => $p)
+        @forelse ($rasHewan as $index => $ras)
         <tr>
             <td>{{ $index + 1 }}</td>
-            <td>{{ $p->user->nama }}</td>
-            <td>{{ $p->user->email }}</td>
-            <td>{{ $p->no_wa }}</td>
-            <td>{{ $p->alamat }}</td>
+            <td>{{ $ras->nama_ras }}</td>
+            <td>{{ $ras->jenisHewan->nama_jenis_hewan }}</td>
             <td>
-                <a href="{{ route('admin.pemilik.edit', $p->idpemilik) }}">
+                <a href="{{ route('admin.ras-hewan.edit', $ras->idras_hewan) }}">
                     <button>Edit</button>
                 </a>
                 
-                <form action="{{ route('admin.pemilik.destroy', $p->idpemilik) }}" 
+                <form action="{{ route('admin.ras-hewan.destroy', $ras->idras_hewan) }}" 
                       method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
@@ -46,7 +42,7 @@
         </tr>
         @empty
         <tr>
-            <td colspan="6">Tidak ada data</td>
+            <td colspan="4">Tidak ada data</td>
         </tr>
         @endforelse
     </tbody>

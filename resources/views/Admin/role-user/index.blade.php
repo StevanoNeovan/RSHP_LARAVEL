@@ -1,11 +1,11 @@
-<h1>Daftar Pemilik</h1>
+<h1>Daftar User dengan Role</h1>
 
 @if(session('success'))
     <p style="color: green;">{{ session('success') }}</p>
 @endif
 
-<a href="{{ route('admin.pemilik.create') }}">
-    <button>Tambah Pemilik</button>
+<a href="{{ route('admin.role-user.create') }}">
+    <button>Tambah Role User</button>
 </a>
 
 <br><br>
@@ -14,27 +14,33 @@
     <thead>
         <tr>
             <th>No</th>
-            <th>Nama</th>
+            <th>Nama User</th>
             <th>Email</th>
-            <th>No. WhatsApp</th>
-            <th>Alamat</th>
+            <th>Role</th>
+            <th>Status</th>
             <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
-        @forelse ($pemilik as $index => $p)
+        @forelse ($roleUsers as $index => $roleUser)
         <tr>
             <td>{{ $index + 1 }}</td>
-            <td>{{ $p->user->nama }}</td>
-            <td>{{ $p->user->email }}</td>
-            <td>{{ $p->no_wa }}</td>
-            <td>{{ $p->alamat }}</td>
+            <td>{{ $roleUser->user->nama }}</td>
+            <td>{{ $roleUser->user->email }}</td>
+            <td>{{ $roleUser->role->nama_role }}</td>
             <td>
-                <a href="{{ route('admin.pemilik.edit', $p->idpemilik) }}">
+                @if($roleUser->status == 1)
+                    <span style="color: green;">Aktif</span>
+                @else
+                    <span style="color: red;">Nonaktif</span>
+                @endif
+            </td>
+            <td>
+                <a href="{{ route('admin.role-user.edit', $roleUser->idrole_user) }}">
                     <button>Edit</button>
                 </a>
                 
-                <form action="{{ route('admin.pemilik.destroy', $p->idpemilik) }}" 
+                <form action="{{ route('admin.role-user.destroy', $roleUser->idrole_user) }}" 
                       method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')

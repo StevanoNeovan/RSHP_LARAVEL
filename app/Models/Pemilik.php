@@ -14,4 +14,9 @@ class Pemilik extends Model
     {
         return $this->belongsTo(User::class, 'iduser', 'iduser');
     }
+
+    public function pets()
+    {
+        return $this->hasMany(Pet::class, 'idpemilik', 'idpemilik');
+    }
 }
