@@ -25,17 +25,8 @@ class RoleUserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'iduser' => 'required|exists:user,iduser',
-            'idrole' => 'required|exists:role,idrole',
-            'status' => 'required|in:0,1'
-        ]);
-
-        RoleUser::create([
-            'iduser' => $request->iduser,
-            'idrole' => $request->idrole,
-            'status' => $request->status
-        ]);
+        $validated = $this->validateRoleUser($request);
+        $this->createRoleUser($validated);
 
         return redirect()->route('admin.role-user.index')
             ->with('success', 'Role User berhasil ditambahkan');
@@ -51,18 +42,10 @@ class RoleUserController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'iduser' => 'required|exists:user,iduser',
-            'idrole' => 'required|exists:role,idrole',
-            'status' => 'required|in:0,1'
-        ]);
-
+        $validated = $this->validateRoleUser($request);
+        
         $roleUser = RoleUser::findOrFail($id);
-        $roleUser->update([
-            'iduser' => $request->iduser,
-            'idrole' => $request->idrole,
-            'status' => $request->status
-        ]);
+        $roleUser->update($validated);
 
         return redirect()->route('admin.role-user.index')
             ->with('success', 'Role User berhasil diupdate');
@@ -75,5 +58,37 @@ class RoleUserController extends Controller
 
         return redirect()->route('admin.role-user.index')
             ->with('success', 'Role User berhasil dihapus');
+    }
+
+    // ========== HELPER FUNCTIONS ==========
+
+    private function validateRoleUser(Request $request)
+    {
+        return $request->validate([
+            'iduser' => 'required|exists:user,iduser',
+            'idrole' => 'required|exists:role,idrole',
+            'status' => 'required|in:0,1'
+        ], [
+            'iduser.required' => 'User wajib dipilih',
+            'iduser.exists' => 'User tidak valid',
+            'idrole.required' => 'Role wajib dipilih',
+            'idrole.exists' => 'Role tidak valid',
+            'status.required' => 'Status wajib dipilih',
+            'status.in' => 'Status tidak valid'
+        ]);
+    }
+
+    private function createRoleUser(array $validated)
+    {
+        // Check apakah user sudah punya role yang sama
+        $exists = RoleUser::where('iduser', $validated['iduser'])
+                          ->where('idrole', $validated['idrole'])
+                          ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['error' => 'User sudah memiliki role ini'])->withInput();
+        }
+
+        RoleUser::create($validated);
     }
 }

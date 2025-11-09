@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\RoleUserController;
 use App\Http\Controllers\Admin\PemilikController;
 use App\Http\Controllers\Admin\DashboardAdminController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\RekamMedisController;
 use App\Http\Controllers\Resepsionis\DashboardResepsionisController;
 use App\Http\Controllers\Resepsionis\PemilikController as ResepsionisPemilikController;
 use App\Http\Controllers\Resepsionis\PetController as ResepsionisPetController;
@@ -21,7 +22,7 @@ use App\Http\Controllers\Pemilik\DashboardPemilikController;
 use App\Http\Controllers\Dokter\DashboardDokterController;
 use App\Http\Controllers\Perawat\DashboardPerawatController;
 
-
+use App\Models\KodeTindakanTerapi;
 
 // AUTH ROUTES 
 
@@ -67,15 +68,53 @@ Route::get('/admin/dashboard', [App\Http\Controllers\Admin\DashboardAdminControl
     ->middleware('isAdministrator');
 
 Route::get('/user', [UserController::class, 'index'])->name('admin.user.index');
+
+// jenis hewan
 Route::get('/jenis-hewan', [JenisHewanController::class, 'index'])->name('admin.jenis-hewan.index');
+Route::get('/jenis-hewan/create', [JenisHewanController::class, 'create'])->name('admin.jenis-hewan.create');
+Route::post('/jenis-hewan/store', [JenisHewanController::class, 'store'])->name('admin.jenis-hewan.store');
+
+// ras hewan
 Route::get('/ras-hewan', [RasHewanController::class, 'index'])->name('admin.ras-hewan.index');
+Route::get('/ras-hewan/create', [RasHewanController::class, 'create'])->name('admin.ras-hewan.create');
+Route::post('/ras-hewan/store', [RasHewanController::class, 'store'])->name('admin.ras-hewan.store');
+
+// kategori
+
 Route::get('/kategori', [KategoriController::class, 'index'])->name('admin.kategori.index');
+Route::get('/kategori/create', [KategoriController::class, 'create'])->name('admin.kategori.create');
+Route::post('/kategori/store', [KategoriController::class, 'store'])->name('admin.kategori.store');
+
+// kategori klinis  
 Route::get('/kategori-klinis', [KategoriKlinisController::class, 'index'])->name('admin.kategori-klinis.index');
+Route::get('/kategori-klinis/create', [KategoriKlinisController::class, 'create'])->name('admin.kategori-klinis.create');
+Route::post('/kategori-klinis/store', [KategoriKlinisController::class, 'store'])->name('admin.kategori-klinis.store');
+
+// kode tindakan terapi
 Route::get('/kode-tindakan-terapi', [KodeTindakanTerapiController::class, 'index'])->name('admin.kode-tindakan-terapi.index');
+Route::get('/kode-tindakan-terapi/create', [KodeTindakanTerapiController::class, 'create'])->name('admin.kode-tindakan-terapi.create');
+Route::post('/kode-tindakan-terapi/store', [KodeTindakanTerapiController::class, 'store'])->name('admin.kode-tindakan-terapi.store');
+
+// role
 Route::get('/role', [RoleController::class, 'index'])->name('admin.role.index');
+Route::get('/role/create', [RoleController::class, 'create'])->name('admin.role.create');
+Route::post('/role/store', [RoleController::class, 'store'])->name('admin.role.store');
+
+// role user
 Route::get('/role-user', [RoleUserController::class, 'index'])->name('admin.role-user.index');
+Route::get('/role-user/create', [RoleUserController::class, 'create'])->name('admin.role-user.create');
+Route::post('/role-user/store', [RoleUserController::class, 'store'])->name('admin.role-user.store');
+
+// pemilik
 Route::get('/pemilik', [PemilikController::class, 'index'])->name('admin.pemilik.index');
-Route::get('/rekam-medis', [App\Http\Controllers\Admin\RekamMedisController::class, 'index'])->name('admin.rekam-medis.index');    
+Route::get('/pemilik/create', [PemilikController::class, 'create'])->name('admin.pemilik.create');
+Route::post('/pemilik/store', [PemilikController::class, 'store'])->name('admin.pemilik.store');
+
+// rekam medis
+Route::get('/rekam-medis', [RekamMedisController::class, 'index'])->name('admin.rekam-medis.index');    
+Route::get('/rekam-medis/create', [RekamMedisController::class, 'create'])->name('admin.rekam-medis.create');
+Route::post('/rekam-medis/store', [RekamMedisController::class, 'store'])->name('admin.rekam-medis.store');
+
     
 
 // RESEPSIONIS ROUTES

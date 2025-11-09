@@ -24,13 +24,8 @@ class JenisHewanController extends Controller
     // Menyimpan data baru
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_jenis_hewan' => 'required|string|max:100'
-        ]);
-
-        JenisHewan::create([
-            'nama_jenis_hewan' => $request->nama_jenis_hewan
-        ]);
+        $validated = $this->validateJenisHewan($request);
+        $this->createJenisHewan($validated);
 
         return redirect()->route('admin.jenis-hewan.index')
             ->with('success', 'Jenis Hewan berhasil ditambahkan');
@@ -46,13 +41,11 @@ class JenisHewanController extends Controller
     // Update data
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'nama_jenis_hewan' => 'required|string|max:100'
-        ]);
-
+        $validated = $this->validateJenisHewan($request);
+        
         $jenisHewan = JenisHewan::findOrFail($id);
         $jenisHewan->update([
-            'nama_jenis_hewan' => $request->nama_jenis_hewan
+            'nama_jenis_hewan' => $this->formatNamaJenisHewan($validated['nama_jenis_hewan'])
         ]);
 
         return redirect()->route('admin.jenis-hewan.index')
@@ -67,5 +60,39 @@ class JenisHewanController extends Controller
 
         return redirect()->route('admin.jenis-hewan.index')
             ->with('success', 'Jenis Hewan berhasil dihapus');
+    }
+
+    // ========== HELPER FUNCTIONS ==========
+
+    /**
+     * Validasi data Jenis Hewan
+     */
+    private function validateJenisHewan(Request $request)
+    {
+        return $request->validate([
+            'nama_jenis_hewan' => 'required|string|max:100|min:3'
+        ], [
+            'nama_jenis_hewan.required' => 'Nama jenis hewan wajib diisi',
+            'nama_jenis_hewan.max' => 'Nama jenis hewan maksimal 100 karakter',
+            'nama_jenis_hewan.min' => 'Nama jenis hewan minimal 3 karakter'
+        ]);
+    }
+
+    /**
+     * Membuat data Jenis Hewan baru
+     */
+    private function createJenisHewan(array $validated)
+    {
+        JenisHewan::create([
+            'nama_jenis_hewan' => $this->formatNamaJenisHewan($validated['nama_jenis_hewan'])
+        ]);
+    }
+
+    /**
+     * Format nama jenis hewan (Title Case)
+     */
+    private function formatNamaJenisHewan(string $nama): string
+    {
+        return ucwords(strtolower(trim($nama)));
     }
 }

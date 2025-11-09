@@ -21,13 +21,8 @@ class KategoriKlinisController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_kategori_klinis' => 'required|string|max:50'
-        ]);
-
-        KategoriKlinis::create([
-            'nama_kategori_klinis' => $request->nama_kategori_klinis
-        ]);
+        $validated = $this->validateKategoriKlinis($request);
+        $this->createKategoriKlinis($validated);
 
         return redirect()->route('admin.kategori-klinis.index')
             ->with('success', 'Kategori Klinis berhasil ditambahkan');
@@ -41,13 +36,11 @@ class KategoriKlinisController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'nama_kategori_klinis' => 'required|string|max:50'
-        ]);
-
+        $validated = $this->validateKategoriKlinis($request);
+        
         $kategoriKlinis = KategoriKlinis::findOrFail($id);
         $kategoriKlinis->update([
-            'nama_kategori_klinis' => $request->nama_kategori_klinis
+            'nama_kategori_klinis' => $this->formatNamaKategoriKlinis($validated['nama_kategori_klinis'])
         ]);
 
         return redirect()->route('admin.kategori-klinis.index')
@@ -61,5 +54,30 @@ class KategoriKlinisController extends Controller
 
         return redirect()->route('admin.kategori-klinis.index')
             ->with('success', 'Kategori Klinis berhasil dihapus');
+    }
+
+    // ========== HELPER FUNCTIONS ==========
+
+    private function validateKategoriKlinis(Request $request)
+    {
+        return $request->validate([
+            'nama_kategori_klinis' => 'required|string|max:50|min:3'
+        ], [
+            'nama_kategori_klinis.required' => 'Nama kategori klinis wajib diisi',
+            'nama_kategori_klinis.max' => 'Nama kategori klinis maksimal 50 karakter',
+            'nama_kategori_klinis.min' => 'Nama kategori klinis minimal 3 karakter'
+        ]);
+    }
+
+    private function createKategoriKlinis(array $validated)
+    {
+        KategoriKlinis::create([
+            'nama_kategori_klinis' => $this->formatNamaKategoriKlinis($validated['nama_kategori_klinis'])
+        ]);
+    }
+
+    private function formatNamaKategoriKlinis(string $nama): string
+    {
+        return ucwords(strtolower(trim($nama)));
     }
 }

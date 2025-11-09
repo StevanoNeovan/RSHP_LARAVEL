@@ -21,13 +21,8 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_role' => 'required|string|max:100'
-        ]);
-
-        Role::create([
-            'nama_role' => $request->nama_role
-        ]);
+        $validated = $this->validateRole($request);
+        $this->createRole($validated);
 
         return redirect()->route('admin.role.index')
             ->with('success', 'Role berhasil ditambahkan');
@@ -41,13 +36,11 @@ class RoleController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'nama_role' => 'required|string|max:100'
-        ]);
-
+        $validated = $this->validateRole($request);
+        
         $role = Role::findOrFail($id);
         $role->update([
-            'nama_role' => $request->nama_role
+            'nama_role' => $this->formatNamaRole($validated['nama_role'])
         ]);
 
         return redirect()->route('admin.role.index')
@@ -61,5 +54,30 @@ class RoleController extends Controller
 
         return redirect()->route('admin.role.index')
             ->with('success', 'Role berhasil dihapus');
+    }
+
+    // ========== HELPER FUNCTIONS ==========
+
+    private function validateRole(Request $request)
+    {
+        return $request->validate([
+            'nama_role' => 'required|string|max:100|min:3'
+        ], [
+            'nama_role.required' => 'Nama role wajib diisi',
+            'nama_role.max' => 'Nama role maksimal 100 karakter',
+            'nama_role.min' => 'Nama role minimal 3 karakter'
+        ]);
+    }
+
+    private function createRole(array $validated)
+    {
+        Role::create([
+            'nama_role' => $this->formatNamaRole($validated['nama_role'])
+        ]);
+    }
+
+    private function formatNamaRole(string $nama): string
+    {
+        return ucwords(strtolower(trim($nama)));
     }
 }

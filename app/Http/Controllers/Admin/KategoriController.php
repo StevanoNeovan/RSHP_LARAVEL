@@ -21,13 +21,8 @@ class KategoriController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_kategori' => 'required|string|max:100'
-        ]);
-
-        Kategori::create([
-            'nama_kategori' => $request->nama_kategori
-        ]);
+        $validated = $this->validateKategori($request);
+        $this->createKategori($validated);
 
         return redirect()->route('admin.kategori.index')
             ->with('success', 'Kategori berhasil ditambahkan');
@@ -41,13 +36,11 @@ class KategoriController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'nama_kategori' => 'required|string|max:100'
-        ]);
-
+        $validated = $this->validateKategori($request);
+        
         $kategori = Kategori::findOrFail($id);
         $kategori->update([
-            'nama_kategori' => $request->nama_kategori
+            'nama_kategori' => $this->formatNamaKategori($validated['nama_kategori'])
         ]);
 
         return redirect()->route('admin.kategori.index')
@@ -61,5 +54,30 @@ class KategoriController extends Controller
 
         return redirect()->route('admin.kategori.index')
             ->with('success', 'Kategori berhasil dihapus');
+    }
+
+    // ========== HELPER FUNCTIONS ==========
+
+    private function validateKategori(Request $request)
+    {
+        return $request->validate([
+            'nama_kategori' => 'required|string|max:100|min:3'
+        ], [
+            'nama_kategori.required' => 'Nama kategori wajib diisi',
+            'nama_kategori.max' => 'Nama kategori maksimal 100 karakter',
+            'nama_kategori.min' => 'Nama kategori minimal 3 karakter'
+        ]);
+    }
+
+    private function createKategori(array $validated)
+    {
+        Kategori::create([
+            'nama_kategori' => $this->formatNamaKategori($validated['nama_kategori'])
+        ]);
+    }
+
+    private function formatNamaKategori(string $nama): string
+    {
+        return ucwords(strtolower(trim($nama)));
     }
 }
