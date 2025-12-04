@@ -14,14 +14,14 @@ use App\Http\Controllers\Admin\PemilikController;
 use App\Http\Controllers\Admin\DashboardAdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RekamMedisController;
+use App\Http\Controllers\Admin\TemuDokterController;
 use App\Http\Controllers\Resepsionis\DashboardResepsionisController;
 use App\Http\Controllers\Resepsionis\PemilikController as ResepsionisPemilikController;
 use App\Http\Controllers\Resepsionis\PetController as ResepsionisPetController;
-use App\Http\Controllers\Resepsionis\TemuDokterController;
 use App\Http\Controllers\Pemilik\DashboardPemilikController;
 use App\Http\Controllers\Dokter\DashboardDokterController;
 use App\Http\Controllers\Perawat\DashboardPerawatController;
-
+use App\Http\Controllers\Admin\PetController;
 use App\Models\KodeTindakanTerapi;
 
 // AUTH ROUTES 
@@ -83,7 +83,6 @@ Route::get('/ras-hewan/destroy', [RasHewanController::class, 'destroy'])->name('
 Route::post('/ras-hewan/store', [RasHewanController::class, 'store'])->name('admin.ras-hewan.store');
 
 // kategori
-
 Route::get('/kategori', [KategoriController::class, 'index'])->name('admin.kategori.index');
 Route::get('/kategori/create', [KategoriController::class, 'create'])->name('admin.kategori.create');
 Route::get('/kategori/edit', [KategoriController::class, 'edit'])->name('admin.kategori.edit');
@@ -132,6 +131,22 @@ Route::get('/rekam-medis/edit', [RekamMedisController::class, 'edit'])->name('ad
 Route::get('/rekam-medis/destroy', [RekamMedisController::class, 'destroy'])->name('admin.rekam-medis.destroy');
 Route::post('/rekam-medis/store', [RekamMedisController::class, 'store'])->name('admin.rekam-medis.store');
 
+// Pet (Admin)
+Route::get('/pet', [PetController::class, 'index'])->name('admin.pet.index');
+Route::get('/pet/create', [PetController::class, 'create'])->name('admin.pet.create');
+Route::post('/pet/store', [PetController::class, 'store'])->name('admin.pet.store');
+Route::get('/pet/{id}/edit', [PetController::class, 'edit'])->name('admin.pet.edit');
+Route::put('/pet/{id}', [PetController::class, 'update'])->name('admin.pet.update');
+Route::delete('/pet/{id}', [PetController::class, 'destroy'])->name('admin.pet.destroy');
+
+// Temu Dokter (Admin)
+Route::get('/temu-dokter', [TemuDokterController::class, 'index'])->name('admin.temu-dokter.index');
+Route::get('/temu-dokter/create', [TemuDokterController::class, 'create'])->name('admin.temu-dokter.create');
+Route::post('/temu-dokter/store', [TemuDokterController::class, 'store'])->name('admin.temu-dokter.store');
+Route::get('/temu-dokter/{id}/edit', [TemuDokterController::class, 'edit'])->name('admin.temu-dokter.edit');
+Route::put('/temu-dokter/{id}', [TemuDokterController::class, 'update'])->name('admin.temu-dokter.update');
+Route::delete('/temu-dokter/{id}', [TemuDokterController::class, 'destroy'])->name('admin.temu-dokter.destroy');
+Route::patch('/temu-dokter/{id}/status/{status}', [TemuDokterController::class, 'updateStatus'])->name('admin.temu-dokter.update-status');
     
 
 // RESEPSIONIS ROUTES
@@ -196,3 +211,6 @@ Route::middleware(['auth', 'isPemilik'])
         //Route::get('/rekam-medis', [PemilikRekamMedisController::class, 'index'])->name('rekam-medis.index');
 
     });
+}
+
+);
