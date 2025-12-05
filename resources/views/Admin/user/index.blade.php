@@ -1,62 +1,429 @@
-@extends('layouts.app')
+@extends('layouts.admin')
+
+@section('title', 'Data User')
+@section('page-title', 'Manajemen User')
 
 @section('content')
-<div class="container" style="padding:20px;">
-    <h1>Manajemen User (Read-only)</h1>
-    <p>Total user: {{ $users->count() }}</p>
-    <hr>
+<style>
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
 
-    <table border="1" cellpadding="6" cellspacing="0" style="width:100%; border-collapse:collapse;">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Nama</th>
-                <th>Email</th>
-                <th>Role (aktif)</th>
-                <th>Semua Role (history)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($users as $u)
+    .table-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .table-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-box {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        padding: 10px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 14px;
+        width: 250px;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: var(--background-light);
+    }
+
+    th {
+        padding: 16px 24px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+    }
+
+    tbody tr:hover {
+        background: var(--background-light);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .user-avatar.admin {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .user-avatar.dokter {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+    }
+
+    .user-avatar.perawat {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    }
+
+    .user-avatar.pemilik {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .user-details h4 {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 2px;
+    }
+
+    .user-details p {
+        font-size: 12px;
+        color: var(--text-light);
+    }
+
+    .badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .badge-admin {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-dokter {
+        background: #cffafe;
+        color: #0e7490;
+    }
+
+    .badge-perawat {
+        background: #ede9fe;
+        color: #6b21a8;
+    }
+
+    .badge-resepsionis {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-pemilik {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-inactive {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-light);
+    }
+
+    .empty-state i {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.3;
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-dark);
+    }
+
+    .stats-mini {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-mini-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .stat-mini-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+    }
+
+    .stat-mini-content h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1;
+    }
+
+    .stat-mini-content p {
+        font-size: 13px;
+        color: var(--text-light);
+        margin-top: 4px;
+    }
+
+    .role-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+</style>
+
+<!-- Statistics -->
+<div class="stats-mini">
+    <div class="stat-mini-card">
+        <div class="stat-mini-icon" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-mini-content">
+            <h3>{{ $users->count() }}</h3>
+            <p>Total User</p>
+        </div>
+    </div>
+    <div class="stat-mini-card">
+        <div class="stat-mini-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+            <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="stat-mini-content">
+            <h3>{{ $users->filter(function($u) { return $u->roleUser->where('idrole', 1)->where('status', 1)->count() > 0; })->count() }}</h3>
+            <p>Administrator</p>
+        </div>
+    </div>
+    <div class="stat-mini-card">
+        <div class="stat-mini-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+            <i class="fas fa-user-md"></i>
+        </div>
+        <div class="stat-mini-content">
+            <h3>{{ $users->filter(function($u) { return $u->roleUser->where('idrole', 2)->where('status', 1)->count() > 0; })->count() }}</h3>
+            <p>Dokter</p>
+        </div>
+    </div>
+    <div class="stat-mini-card">
+        <div class="stat-mini-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="stat-mini-content">
+            <h3>{{ $users->filter(function($u) { return $u->pemilik !== null; })->count() }}</h3>
+            <p>Pemilik</p>
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-header">
+        <h2 class="table-title">
+            <i class="fas fa-users"></i>
+            Data User
+        </h2>
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="Cari nama atau email..." id="searchInput">
+            <a href="{{ route('admin.user.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Tambah User
+            </a>
+        </div>
+    </div>
+
+    @if($users->count() > 0)
+        <table id="userTable">
+            <thead>
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $u->nama }}</td>
-                    <td>{{ $u->email }}</td>
+                    <th>No</th>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role Aktif</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($users as $index => $user)
+                @php
+                    $activeRoles = $user->roleUser->where('status', 1);
+                    $primaryRole = $activeRoles->first();
+                    $roleClass = 'user';
+                    if ($primaryRole) {
+                        switch($primaryRole->idrole) {
+                            case 1: $roleClass = 'admin'; break;
+                            case 2: $roleClass = 'dokter'; break;
+                            case 3: $roleClass = 'perawat'; break;
+                            case 5: $roleClass = 'pemilik'; break;
+                        }
+                    } elseif ($user->pemilik) {
+                        $roleClass = 'pemilik';
+                    }
+                @endphp
+                <tr>
+                    <td>{{ $index + 1 }}</td>
                     <td>
-                        {{-- tampilkan role yang status == 1 (aktif) jika ada --}}
-                        @php
-                            $activeRole = $u->roleUser->firstWhere('status', 1);
-                        @endphp
-
-                        @if($activeRole && $activeRole->role)
-                            {{ $activeRole->role->nama_role }} (id: {{ $activeRole->idrole }})
+                        <div class="user-info">
+                            <div class="user-avatar {{ $roleClass }}">
+                                {{ strtoupper(substr($user->nama, 0, 1)) }}
+                            </div>
+                            <div class="user-details">
+                                <h4>{{ $user->nama }}</h4>
+                                <p>ID: {{ $user->iduser }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ $user->email }}</td>
+                    <td>
+                        <div class="role-list">
+                            @if($activeRoles->count() > 0)
+                                @foreach($activeRoles as $roleUser)
+                                    @php
+                                        $badgeClass = 'badge-inactive';
+                                        switch($roleUser->idrole) {
+                                            case 1: $badgeClass = 'badge-admin'; break;
+                                            case 2: $badgeClass = 'badge-dokter'; break;
+                                            case 3: $badgeClass = 'badge-perawat'; break;
+                                            case 4: $badgeClass = 'badge-resepsionis'; break;
+                                            case 5: $badgeClass = 'badge-pemilik'; break;
+                                        }
+                                    @endphp
+                                    <span class="badge {{ $badgeClass }}">
+                                        {{ $roleUser->role->nama_role ?? 'Unknown' }}
+                                    </span>
+                                @endforeach
+                            @elseif($user->pemilik)
+                                <span class="badge badge-pemilik">
+                                    Pemilik (Non-Staf)
+                                </span>
+                            @else
+                                <span style="color: var(--text-light); font-size: 13px;">Belum ada role</span>
+                            @endif
+                        </div>
+                    </td>
+                    <td>
+                        @if($activeRoles->count() > 0 || $user->pemilik)
+                            <span class="badge badge-pemilik">Aktif</span>
                         @else
-                            - (tidak ada role aktif)
+                            <span class="badge badge-inactive">Tidak Aktif</span>
                         @endif
                     </td>
                     <td>
-                        @if($u->roleUser && $u->roleUser->count())
-                            <ul style="margin:0; padding-left:16px;">
-                                @foreach($u->roleUser as $ru)
-                                    <li>
-                                        {{ $ru->role->nama_role ?? 'Role terhapus' }} 
-                                        @if($ru->status == 1) <strong>(aktif)</strong> @endif
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @else
-                            -
-                        @endif
+                        <div class="btn-group">
+                            <a href="{{ route('admin.user.show', $user->iduser) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> Detail
+                            </a>
+                            <a href="{{ route('admin.user.edit', $user->iduser) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            @if($user->iduser != auth()->user()->iduser)
+                            <form action="{{ route('admin.user.destroy', $user->iduser) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus user {{ $user->nama }}? Pastikan tidak ada role atau data terkait.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </button>
+                            </form>
+                            @endif
+                        </div>
                     </td>
                 </tr>
-            @empty
-                <tr><td colspan="5" style="text-align:center;">Tidak ada data user.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    <p style="margin-top:12px;">
-        <a href="{{ route('admin.dashboard') }}">Kembali ke Dashboard</a>
-    </p>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <h3>Belum Ada Data User</h3>
+            <p>Silakan tambahkan user terlebih dahulu</p>
+            <a href="{{ route('admin.user.create') }}" class="btn btn-primary" style="margin-top: 16px;">
+                <i class="fas fa-plus"></i>
+                Tambah User Pertama
+            </a>
+        </div>
+    @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Simple search functionality
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#userTable tbody tr');
+        
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchValue) ? '' : 'none';
+        });
+    });
+</script>
+@endpush

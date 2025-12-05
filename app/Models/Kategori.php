@@ -19,4 +19,5 @@ class Kategori extends Model
     {
         return $this->hasMany(KodeTindakanTerapi::class, 'idkategori', 'idkategori');
     }
+    
 }

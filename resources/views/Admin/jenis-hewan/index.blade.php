@@ -1,4 +1,9 @@
-<h1>Daftar Jenis Hewan</h1>
+@extends('layouts.admin')
+
+@section('title', 'Master Data')
+@section('page-title', 'Master Data Jenis Hewan')
+
+@section('content')
 
 @if(session('success'))
     <p style="color: green;">{{ session('success') }}</p>

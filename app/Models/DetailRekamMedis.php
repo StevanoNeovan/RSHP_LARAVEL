@@ -11,11 +11,12 @@ class DetailRekamMedis extends Model
     public $incrementing = true;
     protected $keyType = 'int';
 
-    protected $fillable = [
-        'idrekam_medis',
-        'idkode_tindakan_terapi',
-        'keterangan'
-    ];
+    
+   protected $fillable = [
+       'idrekam_medis',
+       'idkode_tindakan_terapi',
+       'detail' 
+   ];
 
     // 🔗 Relasi ke RekamMedis (Many to One)
     public function rekamMedis()

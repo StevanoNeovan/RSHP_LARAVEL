@@ -8,13 +8,27 @@ class Pemilik extends Model
 {
     protected $table = 'pemilik';
     protected $primaryKey = 'idpemilik';
-    protected $fillable = ['no_wa', 'alamat'];
+    public $incrementing = true;
+    protected $keyType = 'int';
+    public $timestamps = false; // ← PENTING: Set false karena tabel tidak punya created_at/updated_at
 
-    public function user () 
+    protected $fillable = [
+        'no_wa',
+        'alamat',
+        'iduser'
+    ];
+
+    /**
+     * Relationship: Pemilik belongs to User
+     */
+    public function user()
     {
         return $this->belongsTo(User::class, 'iduser', 'iduser');
     }
 
+    /**
+     * Relationship: Pemilik has many Pets
+     */
     public function pets()
     {
         return $this->hasMany(Pet::class, 'idpemilik', 'idpemilik');

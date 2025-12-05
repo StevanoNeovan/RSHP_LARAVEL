@@ -13,7 +13,7 @@ class User extends Authenticatable
     protected $primaryKey = 'iduser';
     public $incrementing = true;
     protected $keyType = 'int';
-    public $timestamps = false;
+    public $timestamps = false; // ← IMPORTANT: Table doesn't have created_at/updated_at
 
     protected $fillable = [
         'nama',
@@ -25,16 +25,43 @@ class User extends Authenticatable
         'password',
     ];
 
-    // 🔗 Relasi ke RoleUser (One to Many)
+    /**
+     * Relationship: User has many RoleUser
+     */
     public function roleUser()
     {
         return $this->hasMany(RoleUser::class, 'iduser', 'iduser');
     }
 
-    // 🔗 Relasi ke Pemilik (One to One)
+    /**
+     * Relationship: User has one Pemilik
+     */
     public function pemilik()
     {
         return $this->hasOne(Pemilik::class, 'iduser', 'iduser');
     }
+    
+    /**
+     * Get user's active roles
+     */
+    public function getActiveRolesAttribute()
+    {
+        return $this->roleUser()->where('status', 1)->with('role')->get();
+    }
+    
+    /**
+     * Check if user has specific role
+     */
+    public function hasRole($roleId)
+    {
+        return $this->roleUser()->where('idrole', $roleId)->where('status', 1)->exists();
+    }
+    
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin()
+    {
+        return $this->hasRole(1);
+    }
 }
-

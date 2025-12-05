@@ -1,5 +1,106 @@
-=== HELPER FUNCTIONS ========== HELPER FUNCTIONS ==========
+<?php
 
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Pemilik;
+use App\Models\User;
+
+class PemilikController extends Controller
+{
+    /**
+     * Display a listing of pemilik
+     */
+    public function index()
+    {
+        $pemilik = Pemilik::with('user')->get();
+        return view('Admin.pemilik.index', compact('pemilik'));
+    }
+
+    /**
+     * Show the form for creating a new pemilik
+     */
+    public function create()
+    {
+        $users = User::all();
+        return view('Admin.pemilik.create', compact('users'));
+    }
+
+    /**
+     * Store a newly created pemilik
+     */
+    public function store(Request $request)
+    {
+        $validated = $this->validatePemilik($request);
+        
+        // Check if user already has pemilik record
+        $exists = Pemilik::where('iduser', $validated['iduser'])->exists();
+        
+        if ($exists) {
+            return back()->withErrors(['iduser' => 'User sudah terdaftar sebagai pemilik'])->withInput();
+        }
+        
+        $this->createPemilik($validated);
+
+        return redirect()->route('admin.pemilik.index')
+            ->with('success', 'Data Pemilik berhasil ditambahkan');
+    }
+
+    /**
+     * Show the form for editing the specified pemilik
+     */
+    public function edit($id)
+    {
+        $pemilik = Pemilik::findOrFail($id);
+        $users = User::all();
+        return view('Admin.pemilik.edit', compact('pemilik', 'users'));
+    }
+
+    /**
+     * Update the specified pemilik
+     */
+    public function update(Request $request, $id)
+    {
+        $validated = $this->validatePemilik($request);
+        
+        // Check if another pemilik already uses this user
+        $exists = Pemilik::where('iduser', $validated['iduser'])
+                        ->where('idpemilik', '!=', $id)
+                        ->exists();
+        
+        if ($exists) {
+            return back()->withErrors(['iduser' => 'User sudah terdaftar sebagai pemilik lain'])->withInput();
+        }
+        
+        $pemilik = Pemilik::findOrFail($id);
+        $pemilik->update([
+            'no_wa' => $this->formatNoWA($validated['no_wa']),
+            'alamat' => ucfirst(trim($validated['alamat'])),
+            'iduser' => $validated['iduser']
+        ]);
+
+        return redirect()->route('admin.pemilik.index')
+            ->with('success', 'Data Pemilik berhasil diupdate');
+    }
+
+    /**
+     * Remove the specified pemilik
+     */
+    public function destroy($id)
+    {
+        $pemilik = Pemilik::findOrFail($id);
+        $pemilik->delete();
+
+        return redirect()->route('admin.pemilik.index')
+            ->with('success', 'Data Pemilik berhasil dihapus');
+    }
+
+    // ========== HELPER FUNCTIONS ==========
+
+    /**
+     * Validate pemilik data
+     */
     private function validatePemilik(Request $request)
     {
         return $request->validate([
@@ -17,15 +118,11 @@
         ]);
     }
 
+    /**
+     * Create new pemilik
+     */
     private function createPemilik(array $validated)
     {
-        // Check apakah user sudah jadi pemilik
-        $exists = Pemilik::where('iduser', $validated['iduser'])->exists();
-
-        if ($exists) {
-            return back()->withErrors(['error' => 'User sudah terdaftar sebagai pemilik'])->withInput();
-        }
-
         Pemilik::create([
             'no_wa' => $this->formatNoWA($validated['no_wa']),
             'alamat' => ucfirst(trim($validated['alamat'])),
@@ -33,15 +130,22 @@
         ]);
     }
 
+    /**
+     * Format WhatsApp number (normalize to 62xxx format)
+     */
     private function formatNoWA(string $no): string
     {
-        // Hilangkan karakter selain angka
+        // Remove all non-numeric characters
         $no = preg_replace('/[^0-9]/', '', $no);
         
-        // Jika dimulai dengan 62, biarkan
-        // Jika dimulai dengan 0, replace dengan 62
+        // If starts with 0, replace with 62
         if (substr($no, 0, 1) === '0') {
             $no = '62' . substr($no, 1);
+        }
+        
+        // If doesn't start with 62, add it
+        if (substr($no, 0, 2) !== '62') {
+            $no = '62' . $no;
         }
         
         return $no;

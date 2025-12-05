@@ -18,4 +18,6 @@ class JenisHewan extends Model
     {
         return $this->hasMany(RasHewan::class, 'idjenis_hewan', 'idjenis_hewan');
     }
+    
+    public $timestamps = false;
 }

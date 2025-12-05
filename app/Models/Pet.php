@@ -10,6 +10,7 @@ class Pet extends Model
     protected $primaryKey = 'idpet';
     public $incrementing = true;
     protected $keyType = 'int';
+    public $timestamps = false;
 
     protected $fillable = ['nama','tanggal_lahir','warna_tanda','jenis_kelamin','idpemilik','idras_hewan'];
 
