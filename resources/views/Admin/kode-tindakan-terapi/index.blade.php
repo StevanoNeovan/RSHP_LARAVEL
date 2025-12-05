@@ -1,16 +1,120 @@
-<h1>Daftar Kode Tindakan Terapi</h1>
+@extends('layouts.admin')
+
+@section('title', 'Kode Tindakan Terapi')
+@section('page-title', 'Master Data Kode Tindakan Terapi')
+
+@section('content')
+
+<style>
+    .header-section {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .header-title h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        border: none;
+        padding: 10px 16px;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        opacity: .9;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+    }
+
+    table th {
+        background: var(--background-light);
+        padding: 12px;
+        text-align: left;
+        font-size: 14px;
+        color: var(--text-dark);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    table td {
+        padding: 12px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+    }
+
+    .action-btn {
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        color: white;
+    }
+
+    .btn-edit {
+        background: #3b82f6;
+    }
+
+    .btn-delete {
+        background: #ef4444;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 0;
+        color: var(--text-light);
+    }
+</style>
+
+{{-- Header --}}
+<div class="header-section">
+    <div class="header-title">
+        <h2>Daftar Kode Tindakan Terapi</h2>
+    </div>
+
+    <a href="{{ route('admin.kode-tindakan-terapi.create') }}">
+        <button class="btn-primary">+ Tambah Kode Tindakan Terapi</button>
+    </a>
+</div>
 
 @if(session('success'))
-    <p style="color: green;">{{ session('success') }}</p>
+    <div style="color: green; margin-bottom: 12px;">
+        {{ session('success') }}
+    </div>
 @endif
 
-<a href="{{ route('admin.kode-tindakan-terapi.create') }}">
-    <button>Tambah Kode Tindakan Terapi</button>
-</a>
+{{-- Table Card --}}
 
-<br><br>
-
-<table border="1" cellpadding="10" cellspacing="0">
+<div class="table-card">
+<table>
     <thead>
         <tr>
             <th>No</th>
@@ -31,14 +135,14 @@
             <td>{{ $kode->kategoriKlinis->nama_kategori_klinis }}</td>
             <td>
                 <a href="{{ route('admin.kode-tindakan-terapi.edit', $kode->idkode_tindakan_terapi) }}">
-                    <button>Edit</button>
+                    <button class="action-btn btn-edit">Edit</button>
                 </a>
                 
                 <form action="{{ route('admin.kode-tindakan-terapi.destroy', $kode->idkode_tindakan_terapi) }}" 
                       method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" onclick="return confirm('Yakin ingin menghapus?')">
+                    <button class="action-btn btn-delete" type="submit" onclick="return confirm('Yakin ingin menghapus?')">
                         Hapus
                     </button>
                 </form>
@@ -51,3 +155,5 @@
         @endforelse
     </tbody>
 </table>
+</div>
+@endsection

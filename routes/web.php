@@ -77,7 +77,9 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::post('/ras-hewan', [RasHewanController::class, 'store'])->name('ras-hewan.store');
     Route::get('/ras-hewan/{id}/edit', [RasHewanController::class, 'edit'])->name('ras-hewan.edit');
     Route::put('/ras-hewan/{id}', [RasHewanController::class, 'update'])->name('ras-hewan.update');
-    Route::delete('/ras-hewan/{id}', [RasHewanController::class, 'destroy'])->name('ras-hewan.destroy');
+    Route::get('/ras-hewan/delete', [RasHewanController::class, 'deleteForm'])->name('admin.ras-hewan.deleteForm');
+    Route::delete('/ras-hewan', [RasHewanController::class, 'destroy'])->name('ras-hewan.destroy');
+
     
     // Kategori
     Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
@@ -108,9 +110,11 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     // User (Read-only)
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
     Route::post('/user/{id}/reset-password', [UserController::class, 'resetPassword'])->name('user.reset-password');
+    Route::post('/user', [UserController::class, 'store'])->name('user.store');
     Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
     Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
     Route::get('/user/{id}', [UserController::class, 'show'])->name('user.show');
+    Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
     
     // Role
     Route::get('/role', [RoleController::class, 'index'])->name('role.index');

@@ -10,6 +10,7 @@ class DetailRekamMedis extends Model
     protected $primaryKey = 'iddetail_rekam_medis';
     public $incrementing = true;
     protected $keyType = 'int';
+    public $timestamps = false;
 
     
    protected $fillable = [

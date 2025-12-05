@@ -11,8 +11,8 @@ class RasHewanController extends Controller
 {
     public function index()
     {
-        $rasHewan = RasHewan::with('jenisHewan')->get();
-        return view('admin.ras-hewan.index', compact('rasHewan'));
+        $jenisHewan = JenisHewan::with('rasHewan')->get();
+        return view('admin.ras-hewan.index', compact('jenisHewan'));
     }
 
     public function create()
@@ -30,12 +30,19 @@ class RasHewanController extends Controller
             ->with('success', 'Ras Hewan berhasil ditambahkan');
     }
 
-    public function edit($id)
+    public function edit(Request $request, $idjenis_hewan)
     {
-        $rasHewan = RasHewan::findOrFail($id);
-        $jenisHewan = JenisHewan::all();
-        return view('admin.ras-hewan.edit', compact('rasHewan', 'jenisHewan'));
+        $jenisHewan = JenisHewan::findOrFail($idjenis_hewan);
+        $listRas = RasHewan::where('idjenis_hewan', $idjenis_hewan)->get();
+
+        $rasHewan = null;
+        if ($request->has('ras')) {
+            $rasHewan = RasHewan::where('idras_hewan', $request->ras)->first();
+        }
+
+        return view('Admin.ras-hewan.edit', compact('jenisHewan', 'listRas', 'rasHewan'));
     }
+
 
     public function update(Request $request, $id)
     {
@@ -51,14 +58,27 @@ class RasHewanController extends Controller
             ->with('success', 'Ras Hewan berhasil diupdate');
     }
 
-    public function destroy($id)
+    public function deleteForm()
     {
-        $rasHewan = RasHewan::findOrFail($id);
-        $rasHewan->delete();
+        $ras = RasHewan::with('jenisHewan')->get();
 
-        return redirect()->route('admin.ras-hewan.index')
+        return view('admin.ras-hewan.delete', compact('ras'));
+    }
+
+   public function destroy(Request $request)
+    {
+        $request->validate([
+            'idras_hewan' => 'required|exists:ras_hewan,idras_hewan'
+        ]);
+
+        $ras = RasHewan::findOrFail($request->idras_hewan);
+        $ras->delete();
+
+        return redirect()->route('ras-hewan.index')
             ->with('success', 'Ras Hewan berhasil dihapus');
     }
+
+
 
     // ========== HELPER FUNCTIONS ==========
 

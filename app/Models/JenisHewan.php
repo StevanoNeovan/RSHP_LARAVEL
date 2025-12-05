@@ -14,7 +14,7 @@ class JenisHewan extends Model
     protected $fillable = ['nama_jenis_hewan'];
 
     // 🔗 Relasi ke RasHewan (One to Many)
-    public function ras()
+    public function rasHewan()
     {
         return $this->hasMany(RasHewan::class, 'idjenis_hewan', 'idjenis_hewan');
     }
