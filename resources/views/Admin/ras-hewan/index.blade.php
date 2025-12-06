@@ -26,6 +26,12 @@
         color: var(--text-dark);
     }
 
+    .header-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
     .btn-primary {
         background: var(--primary-color);
         border: none;
@@ -37,6 +43,24 @@
     }
 
     .btn-primary:hover {
+        opacity: .9;
+    }
+
+    .btn-danger {
+        background: var(--danger-color);
+        border: none;
+        padding: 10px 16px;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-danger:hover {
         opacity: .9;
     }
 
@@ -83,10 +107,6 @@
         background: #3b82f6;
     }
 
-    .btn-delete {
-        background: #ef4444;
-    }
-
     .empty-state {
         text-align: center;
         padding: 40px 0;
@@ -100,13 +120,16 @@
         <h2>Daftar Ras Hewan</h2>
     </div>
 
-    <a href="{{ route('admin.ras-hewan.create') }}">
-        <button class="btn-primary">+ Tambah Ras Hewan</button>
-    </a>
+    <div class="header-actions">
+        <a href="{{ route('admin.ras-hewan.create') }}">
+            <button class="btn-primary">
+                <i class="fas fa-plus"></i> Tambah Ras Hewan
+            </button>
+        </a>
+    </div>
 </div>
 
 {{-- Table Card --}}
-
 <div class="table-card">
     <table>
         <thead>
@@ -123,7 +146,7 @@
         <td>{{ $index + 1 }}</td>
 
         {{-- Nama Jenis Hewan --}}
-        <td>{{ $jenis->nama_jenis_hewan }}</td>
+        <td><strong>{{ $jenis->nama_jenis_hewan }}</strong></td>
 
         {{-- Daftar Ras --}}
         <td>
@@ -138,21 +161,22 @@
             @endif
         </td>
 
-        {{-- Tombol Edit/Hapus --}}
+        {{-- Tombol Edit & Hapus --}}
         <td>
-            <a href="{{ route('admin.ras-hewan.edit', $jenis->idjenis_hewan) }}">
-                <button class="action-btn btn-edit">Edit</button>
-            </a>
-
-            <form action="{{ route('admin.ras-hewan.destroy', $jenis->idjenis_hewan) }}" 
-                  method="POST" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button class="action-btn btn-delete"
-                        onclick="return confirm('Yakin ingin menghapus jenis hewan ini?')">
-                    Hapus
-                </button>
-            </form>
+            <div style="display: flex; gap: 8px;">
+                <a href="{{ route('admin.ras-hewan.edit', $jenis->idjenis_hewan) }}">
+                    <button class="action-btn btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </a>
+                @if($jenis->rasHewan->count() > 0)
+                    <a href="{{ route('admin.ras-hewan.delete-form', $jenis->idjenis_hewan) }}">
+                        <button class="action-btn" style="background: #ef4444;">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </a>
+                @endif
+            </div>
         </td>
     </tr>
 @endforeach

@@ -16,14 +16,13 @@ class DashboardPemilikController extends Controller
 
         $pemilik = $user->pemilik;
 
-        $petIds = $pemilik->pets()->pluck('idpet'); 
+        $idpet = $pemilik->pets()->pluck('idpet'); 
 
-        $total_pets = $petIds->count();
+        $total_pets = $idpet->count();
 
-        $total_reservasi = TemuDokter::whereIn('idpet', $petIds)->count();
+        $total_reservasi = TemuDokter::whereIn('idpet', $idpet)->count();
 
-        $total_rekam_medis = RekamMedis::whereIn('idpet', $petIds)->count();
-
+        $total_rekam_medis = RekamMedis::whereIn('idpet', $idpet)->count();
         return view('pemilik.dashboard-pemilik', [
             'user' => $user, 
             'total_pets' => $total_pets,

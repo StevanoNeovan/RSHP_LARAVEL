@@ -43,7 +43,6 @@ class RasHewanController extends Controller
         return view('Admin.ras-hewan.edit', compact('jenisHewan', 'listRas', 'rasHewan'));
     }
 
-
     public function update(Request $request, $id)
     {
         $validated = $this->validateRasHewan($request);
@@ -58,27 +57,50 @@ class RasHewanController extends Controller
             ->with('success', 'Ras Hewan berhasil diupdate');
     }
 
-    public function deleteForm()
+    /**
+     * Show delete form with list of ras hewan filtered by jenis
+     */
+    public function deleteForm($idjenis_hewan)
     {
-        $ras = RasHewan::with('jenisHewan')->get();
-
-        return view('admin.ras-hewan.delete', compact('ras'));
+        $jenisHewan = JenisHewan::findOrFail($idjenis_hewan);
+        $ras = RasHewan::where('idjenis_hewan', $idjenis_hewan)->get();
+        
+        return view('admin.ras-hewan.delete', compact('ras', 'jenisHewan'));
     }
 
-   public function destroy(Request $request)
+    /**
+     * Delete selected ras hewan
+     */
+    public function destroy(Request $request)
     {
         $request->validate([
             'idras_hewan' => 'required|exists:ras_hewan,idras_hewan'
+        ], [
+            'idras_hewan.required' => 'Ras hewan wajib dipilih',
+            'idras_hewan.exists' => 'Ras hewan tidak ditemukan'
         ]);
 
-        $ras = RasHewan::findOrFail($request->idras_hewan);
-        $ras->delete();
+        try {
+            $ras = RasHewan::findOrFail($request->idras_hewan);
+            
+            // Check if ras is being used by any pet
+            if ($ras->pet()->count() > 0) {
+                return back()->withErrors([
+                    'idras_hewan' => 'Ras hewan tidak dapat dihapus karena masih digunakan oleh ' . $ras->pet()->count() . ' pet'
+                ])->withInput();
+            }
+            
+            $namaRas = $ras->nama_ras;
+            $ras->delete();
 
-        return redirect()->route('ras-hewan.index')
-            ->with('success', 'Ras Hewan berhasil dihapus');
+            return redirect()->route('admin.ras-hewan.index')
+                ->with('success', "Ras Hewan '{$namaRas}' berhasil dihapus");
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'idras_hewan' => 'Terjadi kesalahan saat menghapus ras hewan: ' . $e->getMessage()
+            ])->withInput();
+        }
     }
-
-
 
     // ========== HELPER FUNCTIONS ==========
 

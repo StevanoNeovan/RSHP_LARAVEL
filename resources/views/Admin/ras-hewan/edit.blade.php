@@ -66,7 +66,7 @@
 
 <div class="section-wrapper">
 
-    {{-- 🔥 TOMBOL KEMBALI SELALU TAMPIL --}}
+    {{-- TOMBOL KEMBALI SELALU TAMPIL --}}
     <div class="back-btn-wrapper">
         <a href="{{ route('admin.ras-hewan.index') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Kembali
