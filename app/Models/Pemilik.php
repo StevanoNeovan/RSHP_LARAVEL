@@ -10,7 +10,7 @@ class Pemilik extends Model
     protected $primaryKey = 'idpemilik';
     public $incrementing = true;
     protected $keyType = 'int';
-    public $timestamps = false; // ← PENTING: Set false karena tabel tidak punya created_at/updated_at
+    public $timestamps = false;
 
     protected $fillable = [
         'no_wa',

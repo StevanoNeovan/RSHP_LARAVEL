@@ -1,28 +1,28 @@
-@extends('layouts.dokter')
+@extends('layouts.perawat')
 
-@section('title', 'Profil Dokter')
+@section('title', 'Profil Perawat')
 @section('page-title', 'Profil Saya')
 
 @section('content')
 
 <div class="card">
     <div class="section-header">
-        <i class="fas fa-user-md"></i>
-        <h3>Informasi Dokter</h3>
+        <i class="fas fa-user-nurse"></i>
+        <h3>Informasi Perawat</h3>
     </div>
     
     <div style="display: grid; grid-template-columns: 200px 1fr; gap: 32px; align-items: start;">
         <!-- Avatar -->
         <div style="text-align: center;">
-            <div style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; color: white; font-size: 64px; font-weight: 700; margin: 0 auto 16px; border: 5px solid #e5e7eb;">
+            <div style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-size: 64px; font-weight: 700; margin: 0 auto 16px; border: 5px solid #e5e7eb;">
                 {{ strtoupper(substr($user->nama, 0, 1)) }}
             </div>
             <h3 style="margin: 0; font-size: 20px; font-weight: 700;">{{ $user->nama }}</h3>
-            <p style="color: #6b7280; font-size: 14px; margin-top: 4px;">Dokter Hewan</p>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 4px;">Perawat</p>
             
-            <div style="margin-top: 16px; padding: 12px; background: #dbeafe; border-radius: 8px;">
-                <div style="font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Status</div>
-                <div style="font-size: 14px; font-weight: 700; color: #1e40af;">
+            <div style="margin-top: 16px; padding: 12px; background: #d1fae5; border-radius: 8px;">
+                <div style="font-size: 11px; color: #065f46; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Status</div>
+                <div style="font-size: 14px; font-weight: 700; color: #065f46;">
                     @if($roleUser->status == 1)
                         <i class="fas fa-check-circle"></i> Aktif
                     @else
@@ -58,32 +58,32 @@
                     <td style="padding: 16px 0; font-weight: 600; color: #6b7280;">
                         <i class="fas fa-map-marker-alt" style="width: 20px;"></i> Alamat
                     </td>
-                    <td style="padding: 16px 0; font-size: 16px;">{{ $dokter->alamat }}</td>
+                    <td style="padding: 16px 0; font-size: 16px;">{{ $perawat->alamat }}</td>
                 </tr>
                 <tr style="border-bottom: 1px solid #e5e7eb;">
                     <td style="padding: 16px 0; font-weight: 600; color: #6b7280;">
                         <i class="fas fa-phone" style="width: 20px;"></i> Nomor HP
                     </td>
-                    <td style="padding: 16px 0; font-size: 16px;">{{ $dokter->no_hp }}</td>
+                    <td style="padding: 16px 0; font-size: 16px;">{{ $perawat->no_hp }}</td>
                 </tr>
                 <tr style="border-bottom: 1px solid #e5e7eb;">
                     <td style="padding: 16px 0; font-weight: 600; color: #6b7280;">
-                        <i class="fas fa-stethoscope" style="width: 20px;"></i> Bidang Spesialisasi
+                        <i class="fas fa-graduation-cap" style="width: 20px;"></i> Pendidikan
                     </td>
-                    <td style="padding: 16px 0; font-size: 16px;">{{ $dokter->bidang_dokter }}</td>
+                    <td style="padding: 16px 0; font-size: 16px;">{{ $perawat->pendidikan }}</td>
                 </tr>
                 <tr style="border-bottom: 1px solid #e5e7eb;">
                     <td style="padding: 16px 0; font-weight: 600; color: #6b7280;">
                         <i class="fas fa-venus-mars" style="width: 20px;"></i> Jenis Kelamin
                     </td>
-                    <td style="padding: 16px 0; font-size: 16px;">{{ $dokter->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                    <td style="padding: 16px 0; font-size: 16px;">{{ $perawat->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
                 </tr>
                 <tr>
                     <td style="padding: 16px 0; font-weight: 600; color: #6b7280;">
                         <i class="fas fa-id-badge" style="width: 20px;"></i> ID Role User
                     </td>
                     <td style="padding: 16px 0; font-size: 16px;">
-                        <span style="display: inline-block; padding: 4px 12px; background: #3b82f620; color: #3b82f6; border-radius: 6px; font-weight: 700; font-family: monospace;">
+                        <span style="display: inline-block; padding: 4px 12px; background: #10b98120; color: #10b981; border-radius: 6px; font-weight: 700; font-family: monospace;">
                             #{{ $roleUser->idrole_user }}
                         </span>
                     </td>
@@ -95,7 +95,7 @@
         <div id="editMode" style="display: none;">
             <h3 style="margin-bottom: 20px;">Edit Data Profil</h3>
             
-            <form method="POST" action="{{ route('dokter.profil.update') }}">
+            <form method="POST" action="{{ route('perawat.profil.update') }}">
                 @csrf
                 @method('PUT')
                 
@@ -105,7 +105,7 @@
                         <i class="fas fa-map-marker-alt"></i> Alamat Lengkap *
                     </label>
                     <textarea name="alamat" rows="3" required 
-                              style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-family: inherit; font-size: 14px;">{{ old('alamat', $dokter->alamat) }}</textarea>
+                              style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-family: inherit; font-size: 14px;">{{ old('alamat', $perawat->alamat) }}</textarea>
                     @error('alamat')
                         <div style="color: #ef4444; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
                     @enderror
@@ -116,21 +116,21 @@
                     <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 14px;">
                         <i class="fas fa-phone"></i> Nomor HP *
                     </label>
-                    <input type="text" name="no_hp" value="{{ old('no_hp', $dokter->no_hp) }}" required 
+                    <input type="text" name="no_hp" value="{{ old('no_hp', $perawat->no_hp) }}" required 
                            style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
                     @error('no_hp')
                         <div style="color: #ef4444; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
                     @enderror
                 </div>
                 
-                <!-- Bidang Dokter -->
+                <!-- Pendidikan -->
                 <div style="margin-bottom: 20px;">
                     <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 14px;">
-                        <i class="fas fa-stethoscope"></i> Bidang Spesialisasi *
+                        <i class="fas fa-graduation-cap"></i> Pendidikan Terakhir *
                     </label>
-                    <input type="text" name="bidang_dokter" value="{{ old('bidang_dokter', $dokter->bidang_dokter) }}" required 
+                    <input type="text" name="pendidikan" value="{{ old('pendidikan', $perawat->pendidikan) }}" required 
                            style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
-                    @error('bidang_dokter')
+                    @error('pendidikan')
                         <div style="color: #ef4444; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
                     @enderror
                 </div>
@@ -142,11 +142,11 @@
                     </label>
                     <div style="display: flex; gap: 24px;">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="radio" name="jenis_kelamin" value="L" {{ old('jenis_kelamin', $dokter->jenis_kelamin) == 'L' ? 'checked' : '' }} required>
+                            <input type="radio" name="jenis_kelamin" value="L" {{ old('jenis_kelamin', $perawat->jenis_kelamin) == 'L' ? 'checked' : '' }} required>
                             <span>Laki-laki</span>
                         </label>
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="radio" name="jenis_kelamin" value="P" {{ old('jenis_kelamin', $dokter->jenis_kelamin) == 'P' ? 'checked' : '' }} required>
+                            <input type="radio" name="jenis_kelamin" value="P" {{ old('jenis_kelamin', $perawat->jenis_kelamin) == 'P' ? 'checked' : '' }} required>
                             <span>Perempuan</span>
                         </label>
                     </div>
@@ -169,11 +169,11 @@
     </div>
 </div>
 
-<!-- Statistics Cards (existing code) -->
+<!-- Statistics Cards -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
     
     <!-- Total Rekam Medis -->
-    <div class="card" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;">
+    <div class="card" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Total Rekam Medis</div>
@@ -187,7 +187,7 @@
     </div>
     
     <!-- Rekam Medis Bulan Ini -->
-    <div class="card" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
+    <div class="card" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Bulan Ini</div>
@@ -207,9 +207,9 @@
             <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Performance Rating</div>
             <div style="font-size: 32px; font-weight: 700;">
                 @php
-                    $rating = $total_rekam_medis >= 100 ? 'Excellent' : 
-                              ($total_rekam_medis >= 50 ? 'Good' : 
-                              ($total_rekam_medis >= 10 ? 'Fair' : 'Getting Started'));
+                    $rating = $total_rekam_medis >= 200 ? 'Excellent' : 
+                              ($total_rekam_medis >= 100 ? 'Good' : 
+                              ($total_rekam_medis >= 50 ? 'Fair' : 'Getting Started'));
                 @endphp
                 {{ $rating }}
             </div>
@@ -218,7 +218,7 @@
 
 </div>
 
-<!-- Activity Info (existing code) -->
+<!-- Activity Info -->
 <div class="card">
     <div class="section-header">
         <i class="fas fa-chart-line"></i>
@@ -227,13 +227,13 @@
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
         <div style="padding: 20px; background: #f9fafb; border-radius: 12px; text-align: center;">
-            <i class="fas fa-stethoscope" style="font-size: 32px; color: #3b82f6; margin-bottom: 12px;"></i>
+            <i class="fas fa-hospital-user" style="font-size: 32px; color: #10b981; margin-bottom: 12px;"></i>
             <div style="font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">{{ $total_rekam_medis }}</div>
-            <div style="font-size: 13px; color: #6b7280; font-weight: 600;">Pasien Ditangani</div>
+            <div style="font-size: 13px; color: #6b7280; font-weight: 600;">Rekam Medis Terdaftar</div>
         </div>
         
         <div style="padding: 20px; background: #f9fafb; border-radius: 12px; text-align: center;">
-            <i class="fas fa-clock" style="font-size: 32px; color: #10b981; margin-bottom: 12px;"></i>
+            <i class="fas fa-clock" style="font-size: 32px; color: #3b82f6; margin-bottom: 12px;"></i>
             <div style="font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">
                 {{ $roleUser->created_at ? \Carbon\Carbon::parse($roleUser->created_at)->diffInMonths(now()) : 0 }}
             </div>
@@ -256,11 +256,11 @@
     </div>
 </div>
 
-<!-- Professional Note (existing code) -->
-<div class="card" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;">
+<!-- Professional Note -->
+<div class="card" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
     <div style="display: flex; align-items: start; gap: 20px;">
         <div style="font-size: 48px; opacity: 0.3;">
-            <i class="fas fa-user-md"></i>
+            <i class="fas fa-user-nurse"></i>
         </div>
         <div>
             <h3 style="margin-bottom: 12px; font-size: 20px;">
@@ -268,8 +268,48 @@
                 Komitmen Profesional
             </h3>
             <p style="line-height: 1.8; opacity: 0.95; margin: 0;">
-                Sebagai dokter hewan, tanggung jawab utama adalah memberikan pelayanan kesehatan terbaik untuk setiap pasien. 
-                Terus tingkatkan keahlian dan dedikasi dalam merawat hewan kesayangan pemilik yang mempercayakan kepada kita.
+                Sebagai perawat hewan, peran Anda sangat penting dalam memberikan perawatan terbaik dan mendukung tim medis. 
+                Terus tingkatkan keterampilan dan dedikasi dalam merawat pasien dengan penuh kasih sayang dan profesionalisme.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Educational Resources Card -->
+<div class="card">
+    <div class="section-header">
+        <i class="fas fa-book-medical"></i>
+        <h3>Pengembangan Diri</h3>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+        <div style="padding: 16px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <i class="fas fa-graduation-cap" style="font-size: 24px; color: #3b82f6;"></i>
+                <h4 style="margin: 0; color: #1e40af;">Pendidikan: {{ $perawat->pendidikan }}</h4>
+            </div>
+            <p style="margin: 0; color: #6b7280; font-size: 13px;">
+                Terus tingkatkan pengetahuan dengan mengikuti workshop dan seminar terkini.
+            </p>
+        </div>
+        
+        <div style="padding: 16px; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <i class="fas fa-hands-helping" style="font-size: 24px; color: #10b981;"></i>
+                <h4 style="margin: 0; color: #065f46;">Tim Kolaborasi</h4>
+            </div>
+            <p style="margin: 0; color: #6b7280; font-size: 13px;">
+                Bekerja sama dengan dokter dan staf lain untuk hasil perawatan optimal.
+            </p>
+        </div>
+        
+        <div style="padding: 16px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <i class="fas fa-heart" style="font-size: 24px; color: #f59e0b;"></i>
+                <h4 style="margin: 0; color: #78350f;">Empati & Caring</h4>
+            </div>
+            <p style="margin: 0; color: #6b7280; font-size: 13px;">
+                Berikan perhatian penuh kepada setiap pasien dengan kasih sayang.
             </p>
         </div>
     </div>

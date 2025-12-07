@@ -282,6 +282,24 @@
             <p>Pemilik</p>
         </div>
     </div>
+      <div class="stat-mini-card">
+        <div class="stat-mini-icon" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="stat-mini-content">
+            <h3>{{ $users->filter(function($u) { return $u->roleUser->where('idrole', 3)->where('status', 1)->count() > 0; })->count() }}</h3>
+            <p>Resepsionis</p>
+        </div>
+    </div>
+    <div class="stat-mini-card">
+        <div class="stat-mini-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed)">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="stat-mini-content">
+            <h3>{{ $users->filter(function($u) { return $u->roleUser->where('idrole', 4)->where('status', 1)->count() > 0; })->count() }}</h3>
+            <p>Perawat</p>
+        </div>
+    </div>
 </div>
 
 <div class="table-container">

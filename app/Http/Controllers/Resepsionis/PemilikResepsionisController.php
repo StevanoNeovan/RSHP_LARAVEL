@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 class PemilikResepsionisController extends Controller
 {
+    /**
+     * Display listing of pemilik
+     */
     public function index(Request $request)
     {
         $search = $request->query('search', '');
@@ -20,7 +23,8 @@ class PemilikResepsionisController extends Controller
                 $query->whereHas('user', function($q) use ($search) {
                     $q->where('nama', 'like', "%{$search}%")
                       ->orWhere('email', 'like', "%{$search}%");
-                });
+                })
+                ->orWhere('no_wa', 'like', "%{$search}%");
             })
             ->orderBy('idpemilik', 'desc')
             ->paginate(10);
@@ -28,11 +32,17 @@ class PemilikResepsionisController extends Controller
         return view('resepsionis.pemilik.index', compact('pemilik', 'search'));
     }
     
+    /**
+     * Show form to create new pemilik
+     */
     public function create()
     {
         return view('resepsionis.pemilik.create');
     }
     
+    /**
+     * Store new pemilik
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -43,13 +53,17 @@ class PemilikResepsionisController extends Controller
             'alamat' => 'required|string|max:100|min:5',
         ], [
             'nama.required' => 'Nama wajib diisi',
+            'nama.min' => 'Nama minimal 3 karakter',
             'email.required' => 'Email wajib diisi',
             'email.unique' => 'Email sudah terdaftar',
             'password.required' => 'Password wajib diisi',
+            'password.min' => 'Password minimal 6 karakter',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
             'no_wa.required' => 'Nomor WhatsApp wajib diisi',
             'no_wa.regex' => 'Nomor WhatsApp hanya boleh angka',
+            'no_wa.min' => 'Nomor WhatsApp minimal 10 digit',
             'alamat.required' => 'Alamat wajib diisi',
+            'alamat.min' => 'Alamat minimal 5 karakter',
         ]);
         
         DB::beginTransaction();
@@ -78,12 +92,18 @@ class PemilikResepsionisController extends Controller
         }
     }
     
+    /**
+     * Show form to edit pemilik
+     */
     public function edit($id)
     {
         $pemilik = Pemilik::with('user')->findOrFail($id);
         return view('resepsionis.pemilik.edit', compact('pemilik'));
     }
     
+    /**
+     * Update pemilik
+     */
     public function update(Request $request, $id)
     {
         $pemilik = Pemilik::findOrFail($id);
@@ -119,6 +139,9 @@ class PemilikResepsionisController extends Controller
         }
     }
     
+    /**
+     * Delete pemilik
+     */
     public function destroy($id)
     {
         $pemilik = Pemilik::findOrFail($id);
@@ -143,15 +166,24 @@ class PemilikResepsionisController extends Controller
         }
     }
     
+    /**
+     * Format nomor WA to 62xxx
+     */
     private function formatNoWA(string $no): string
     {
+        // Remove non-numeric
         $no = preg_replace('/[^0-9]/', '', $no);
+        
+        // Convert 0xxx to 62xxx
         if (substr($no, 0, 1) === '0') {
             $no = '62' . substr($no, 1);
         }
+        
+        // Add 62 if not exists
         if (substr($no, 0, 2) !== '62') {
             $no = '62' . $no;
         }
+        
         return $no;
     }
 }

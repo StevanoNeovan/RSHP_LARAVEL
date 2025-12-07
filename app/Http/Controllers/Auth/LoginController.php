@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Dokter;
+use App\Models\Perawat;
 use Session;
 
 class LoginController extends Controller
@@ -123,10 +125,26 @@ class LoginController extends Controller
                         ->with('success', 'Selamat datang, Administrator!');
                 
                 case '2':  // Dokter
+                    // ✅ CEK: Apakah dokter sudah lengkapi profil?
+                    $dokter = Dokter::where('iduser', $user->iduser)->first();
+                    
+                    if (!$dokter) {
+                        return redirect()->route('dokter.profil.complete')
+                            ->with('info', 'Silakan lengkapi data profil Anda terlebih dahulu');
+                    }
+                    
                     return redirect()->route('dokter.dashboard')
                         ->with('success', 'Selamat datang, Dokter!');
                 
                 case '3':  // Perawat
+                    // ✅ CEK: Apakah perawat sudah lengkapi profil?
+                    $perawat = Perawat::where('iduser', $user->iduser)->first();
+                    
+                    if (!$perawat) {
+                        return redirect()->route('perawat.profil.complete')
+                            ->with('info', 'Silakan lengkapi data profil Anda terlebih dahulu');
+                    }
+                    
                     return redirect()->route('perawat.dashboard')
                         ->with('success', 'Selamat datang, Perawat!');
                 
