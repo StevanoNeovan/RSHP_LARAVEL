@@ -13,8 +13,19 @@ class DashboardResepsionisController extends Controller
     {
         $jumlahPemilik = Pemilik::count();
         $jumlahPet = Pet::count();
-        $jumlahTemuDokter = TemuDokter::whereDate('waktu_daftar', today())->count();
+        $jumlahTemuDokterHariIni = TemuDokter::whereDate('waktu_daftar', today())->count();
+        
+        // Temu dokter hari ini
+        $temuDokterHariIni = TemuDokter::whereDate('waktu_daftar', today())
+            ->with(['pet.pemilik.user', 'pet.ras', 'roleUser.user'])
+            ->orderBy('no_urut', 'asc')
+            ->get();
 
-        return view('resepsionis.dashboard-resepsionis', compact('jumlahPemilik', 'jumlahPet', 'jumlahTemuDokter'));
+        return view('resepsionis.dashboard-resepsionis', compact(
+            'jumlahPemilik', 
+            'jumlahPet', 
+            'jumlahTemuDokterHariIni',
+            'temuDokterHariIni'
+        ));
     }
 }

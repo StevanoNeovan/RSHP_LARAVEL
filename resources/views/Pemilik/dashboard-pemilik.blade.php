@@ -1,95 +1,163 @@
-@extends('layouts.pemilik') {{-- Sesuaikan ini dengan nama layout utama Anda --}}
+@extends('layouts.pemilik')
 
-@section('content') {{-- Sesuaikan ini dengan nama section di layout Anda --}}
+@section('title', 'Dashboard Pemilik')
+@section('page-title', 'Dashboard')
 
-<div class="top-bar">
-    <h1><i class="fas fa-th-large"></i> Dashboard Pemilik</h1>
-    <div class="user-info">
-        <div class="user-profile">
-            <div class="user-avatar">
-                {{-- Ambil 1 huruf awal dari NAMA USER --}}
-                {{ strtoupper(substr($user->nama, 0, 1)) }}
-            </div>
-            <div class="user-details">
-                {{-- Ambil data dari $user yang dikirim Controller --}}
-                <h3>{{ $user->nama }}</h3>
-                <p>Pemilik Hewan</p>
-            </div>
-        </div>
-        
-        {{-- Tombol Logout standar Laravel --}}
-        <a href="{{ route('logout') }}" 
-           class="btn-logout"
-           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
-        </a>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-            @csrf
-        </form>
-    </div>
-</div>
-
+@section('content')
+<!-- Welcome Banner -->
 <div class="welcome-banner">
-    {{-- Ambil nama dari $user --}}
     <h2>Selamat Datang, {{ $user->nama }}! 👋</h2>
     <p>Terima kasih telah mempercayakan kesehatan hewan kesayangan Anda kepada RSHP UNAIR. Kelola informasi pet, lihat jadwal reservasi, dan akses rekam medis dengan mudah.</p>
 </div>
 
-<table border="1" width="100%" cellpadding="15">
-    <thead>
-        <tr align="left">
-            <th width="33%">Total Pet Terdaftar</th>
-            <th width="33%">Total Reservasi</th>
-            <th width="33%">Rekam Medis</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr align="center">
-            {{-- Card 1: Total Pet --}}
-            <td>
-                <h1 style="font-size: 3em; margin: 0;">{{ $total_pets }}</h1>
-            </td>
-            
-            {{-- Card 2: Total Reservasi --}}
-            <td>
-                <h1 style="font-size: 3em; margin: 0;">{{ $total_reservasi }}</h1>
-            </td>
-            
-            {{-- Card 3: Rekam Medis --}}
-            <td>
-                <h1 style="font-size: 3em; margin: 0;">{{ $total_rekam_medis }}</h1>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-value">{{ $total_pets }}</div>
+                <div class="stat-label">Total Pet Terdaftar</div>
+            </div>
+            <div class="stat-icon primary">
+                <i class="fas fa-paw"></i>
+            </div>
+        </div>
+    </div>
 
-<div class="quick-actions">
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-value">{{ $total_reservasi }}</div>
+                <div class="stat-label">Total Reservasi</div>
+            </div>
+            <div class="stat-icon secondary">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-value">{{ $total_rekam_medis }}</div>
+                <div class="stat-label">Rekam Medis</div>
+            </div>
+            <div class="stat-icon accent">
+                <i class="fas fa-file-medical"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
     <div class="section-header">
-        <i class="fas fa-bolt" style="font-size: 24px; color: #1e3c72;"></i>
+        <i class="fas fa-bolt"></i>
         <h3>Akses Cepat</h3>
     </div>
-    <div class="action-buttons">
-        {{-- Gunakan helper route() sesuai rute yang kita buat di web.php --}}
-        <a href="#" class="action-btn"> {{-- Nanti: {{ route('pemilik.pets.index') }} --}}
-            <i class="fas fa-dog"></i>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <a href="{{ route('pemilik.pets.index') }}" class="btn btn-primary" style="justify-content: center;">
+            <i class="fas fa-paw"></i>
             <span>Lihat Pet Saya</span>
         </a>
-        <a href="#" class="action-btn"> {{-- Nanti: {{ route('pemilik.reservasi.index') }} --}}
+        <a href="{{ route('pemilik.temu-dokter.index') }}" class="btn btn-primary" style="justify-content: center;">
             <i class="fas fa-calendar-check"></i>
-            <span>Riwayat Reservasi</span>
+            <span>Jadwal Temu Dokter</span>
         </a>
-        <a href="#" class="action-btn"> {{-- Nanti: {{ route('pemilik.rekam-medis.index') }} --}}
+        <a href="{{ route('pemilik.rekam-medis.index') }}" class="btn btn-primary" style="justify-content: center;">
             <i class="fas fa-file-medical"></i>
             <span>Rekam Medis</span>
         </a>
     </div>
 </div>
 
-{{-- 
-PENTING: Jangan lupa update juga link di sidebar Anda (di file layout utama) 
-agar menggunakan helper route(), contoh:
-<a href="{{ route('pemilik.dashboard') }}" class="menu-item ...">
---}}
+<!-- Recent Activities -->
+@if(isset($recent_temu_dokter) && $recent_temu_dokter->count() > 0)
+<div class="card">
+    <div class="section-header">
+        <i class="fas fa-history"></i>
+        <h3>Riwayat Temu Dokter Terbaru</h3>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f9fafb; text-align: left;">
+                    <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">No. Urut</th>
+                    <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Pet</th>
+                    <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Tanggal</th>
+                    <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Dokter</th>
+                    <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($recent_temu_dokter as $temu)
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px;">{{ $temu->no_urut }}</td>
+                    <td style="padding: 12px;">
+                        <strong>{{ $temu->pet->nama }}</strong><br>
+                        <small style="color: #6b7280;">{{ $temu->pet->ras->nama_ras ?? '-' }}</small>
+                    </td>
+                    <td style="padding: 12px;">{{ \Carbon\Carbon::parse($temu->waktu_daftar)->format('d M Y, H:i') }}</td>
+                    <td style="padding: 12px;">{{ $temu->roleUser->user->nama ?? '-' }}</td>
+                    <td style="padding: 12px;">
+                        @php
+                            $statusMap = [
+                                'W' => ['text' => 'Menunggu', 'color' => '#f59e0b'],
+                                'P' => ['text' => 'Dalam Pemeriksaan', 'color' => '#3b82f6'],
+                                'S' => ['text' => 'Selesai', 'color' => '#10b981'],
+                                'B' => ['text' => 'Batal', 'color' => '#ef4444']
+                            ];
+                            $status = $statusMap[$temu->status] ?? ['text' => 'Unknown', 'color' => '#6b7280'];
+                        @endphp
+                        <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: {{ $status['color'] }}20; color: {{ $status['color'] }};">
+                            {{ $status['text'] }}
+                        </span>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
+
+<!-- My Pets Summary -->
+@if($pemilik && $pemilik->pets->count() > 0)
+<div class="card">
+    <div class="section-header">
+        <i class="fas fa-paw"></i>
+        <h3>Pet Saya</h3>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
+        @foreach($pemilik->pets as $pet)
+        <div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; transition: all 0.3s ease;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='none'">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
+                    <i class="fas fa-{{ $pet->jenis_kelamin == 'M' ? 'mars' : 'venus' }}"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0; font-size: 16px; font-weight: 600;">{{ $pet->nama }}</h4>
+                    <p style="margin: 0; font-size: 12px; color: #6b7280;">{{ $pet->ras->nama_ras ?? '-' }}</p>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                <span><i class="fas fa-birthday-cake"></i> {{ \Carbon\Carbon::parse($pet->tanggal_lahir)->age }} tahun</span>
+                <span><i class="fas fa-{{ $pet->jenis_kelamin == 'M' ? 'male' : 'female' }}"></i> {{ $pet->jenis_kelamin == 'M' ? 'Jantan' : 'Betina' }}</span>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    
+    <div style="margin-top: 16px; text-align: center;">
+        <a href="{{ route('pemilik.pets.index') }}" class="btn btn-primary">
+            <i class="fas fa-eye"></i>
+            Lihat Semua Pet
+        </a>
+    </div>
+</div>
+@endif
 
 @endsection

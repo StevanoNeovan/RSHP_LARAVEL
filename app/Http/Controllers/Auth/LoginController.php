@@ -13,23 +13,20 @@ use Session;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
+    /**
+     * Show login form
+     */
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-  public function login(Request $request)
+    /**
+     * Handle login request
+     */
+    public function login(Request $request)
     {
+        // Validasi input
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:6',
@@ -41,20 +38,25 @@ class LoginController extends Controller
                 ->withInput();
         }
         
-        // Eager load SEMUA relasi yang mungkin kita butuhkan
-        $user = User::with (['pemilik', 'roleUser' => function($query){
-            $query->where('status', '1');
-        }, 'roleUser.role'])
+        // ✅ EAGER LOAD semua relasi yang diperlukan
+        $user = User::with([
+            'pemilik.pets',  // Load pemilik dan pets-nya
+            'roleUser' => function($query) {
+                $query->where('status', 1); // Hanya role yang aktif
+            },
+            'roleUser.role'  // Load nama role
+        ])
         ->where('email', $request->input('email'))
         ->first();
 
+        // Cek apakah user ada
         if (!$user) {
             return redirect()->back()
                 ->withErrors(['email' => 'Email tidak ditemukan'])
                 ->withInput();
         }
         
-        // Cek Password
+        // Cek password
         if (!Hash::check($request->password, $user->password)) {
             return redirect()->back()
                 ->withErrors(['password' => 'Password salah'])
@@ -65,28 +67,29 @@ class LoginController extends Controller
         Auth::login($user);
 
         // ==================================================================
-        // LOGIKA BARU YANG DIGABUNGKAN
+        // LOGIKA LOGIN - URUTAN PRIORITAS
         // ==================================================================
 
-        // 1. CEK TIPE PEMILIK #1: (Seperti vicky@mail.com)
-        // Apakah user ini punya data di tabel 'pemilik'?
-        if ($user->pemilik) {
+        // 🔹 PRIORITAS 1: CEK APAKAH USER ADALAH PEMILIK (NON-STAFF)
+        // User yang HANYA punya data di tabel pemilik, tanpa role_user
+        if ($user->pemilik && $user->roleUser->isEmpty()) {
             
-            // Set session manual untuk 'Pemilik'
+            // Set session untuk Pemilik Non-Staff
             $request->session()->put([
                 'user_id' => $user->iduser,
                 'user_nama' => $user->nama,
                 'user_email' => $user->email,
-                'user_role' => 'pemilik', // Kita set manual
-                'user_role_name' => 'Pemilik', // Kita set manual
+                'user_role' => 'pemilik',           // ✅ String khusus untuk pemilik
+                'user_role_name' => 'Pemilik',
+                'user_type' => 'pemilik',           // ✅ Tambahan identifier
+                'idpemilik' => $user->pemilik->idpemilik,  // ✅ Simpan ID pemilik
             ]);
 
-            // Langsung arahkan ke dashboard pemilik
-            return redirect()->route('pemilik.dashboard')->with('success', 'Login berhasil!');
+            return redirect()->route('pemilik.dashboard')
+                ->with('success', 'Selamat datang, ' . $user->nama . '!');
         }
 
-        // 2. CEK STAF & TIPE PEMILIK #2: (Seperti stevano@pemilik.com)
-        // Jika dia bukan pemilik tipe #1, kita cek rolenya
+        // 🔹 PRIORITAS 2: CEK APAKAH USER ADALAH STAFF (PUNYA ROLE_USER)
         $activeRole = $user->roleUser->first(); // Ambil role pertama yang aktif
 
         if ($activeRole) {
@@ -94,35 +97,73 @@ class LoginController extends Controller
             $namaRole = $activeRole->role->nama_role ?? 'User';
             $userRole = (string) $activeRole->idrole;
 
-            // Simpan session user (untuk staf)
-            $request->session()->put([
+            // Set session untuk Staff
+            $sessionData = [
                 'user_id' => $user->iduser,
                 'user_nama' => $user->nama,
                 'user_email' => $user->email,
-                'user_role' => $userRole,
+                'user_role' => $userRole,           // ✅ ID role (1,2,3,4,5)
                 'user_role_name' => $namaRole,
                 'user_status' => $activeRole->status,
-            ]);
+                'idrole_user' => $activeRole->idrole_user,  // ✅ Simpan ID role_user
+            ];
 
+            // Jika staff ini JUGA pemilik, tambahkan info pemilik
+            if ($user->pemilik) {
+                $sessionData['idpemilik'] = $user->pemilik->idpemilik;
+                $sessionData['is_also_pemilik'] = true;  // ✅ Flag tambahan
+            }
+
+            $request->session()->put($sessionData);
+
+            // Redirect berdasarkan role
             switch ($userRole) {
-                case '1':
-                    return redirect()->route('admin.dashboard')->with('success', 'Login berhasil!');
-                case '2':
-                    return redirect()->route('dokter.dashboard')->with('success', 'Login berhasil!');
-                case '3':
-                    return redirect()->route('perawat.dashboard')->with('success', 'Login berhasil!');
-                case '4':
-                    return redirect()->route('resepsionis.dashboard')->with('success', 'Login berhasil!');
-                case '5': 
-                    return redirect()->route('pemilik.dashboard')->with('success', 'Login berhasil!');
+                case '1':  // Administrator
+                    return redirect()->route('admin.dashboard')
+                        ->with('success', 'Selamat datang, Administrator!');
+                
+                case '2':  // Dokter
+                    return redirect()->route('dokter.dashboard')
+                        ->with('success', 'Selamat datang, Dokter!');
+                
+                case '3':  // Perawat
+                    return redirect()->route('perawat.dashboard')
+                        ->with('success', 'Selamat datang, Perawat!');
+                
+                case '4':  // Resepsionis
+                    return redirect()->route('resepsionis.dashboard')
+                        ->with('success', 'Selamat datang, Resepsionis!');
+                
+                case '5':  // Pemilik (Staff) - Pemilik yang juga staff
+                    return redirect()->route('pemilik.dashboard')
+                        ->with('success', 'Selamat datang, ' . $user->nama . '!');
+                
                 default:
-                    return redirect('/')->with('success', 'Login berhasil!');
+                    return redirect('/')
+                        ->with('success', 'Login berhasil!');
             }
         }
 
-        // 3. JIKA BUKAN KEDUANYA (Tidak punya relasi pemilik & tidak punya role)
-        Auth::logout(); // Logout paksa
-        return redirect('/login')->withErrors(['email' => 'Akun Anda tidak memiliki hak akses.']);
+        // 🔹 PRIORITAS 3: JIKA TIDAK PUNYA PEMILIK DAN TIDAK PUNYA ROLE
+        // User ini tidak valid untuk sistem
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect('/login')->withErrors([
+            'email' => 'Akun Anda tidak memiliki hak akses. Hubungi administrator.'
+        ]);
     }
 
+    /**
+     * Handle logout
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect('/login')->with('success', 'Anda telah logout');
+    }
 }
