@@ -67,6 +67,8 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::get('/jenis-hewan/{id}/edit', [JenisHewanController::class, 'edit'])->name('jenis-hewan.edit');
     Route::put('/jenis-hewan/{id}', [JenisHewanController::class, 'update'])->name('jenis-hewan.update');
     Route::delete('/jenis-hewan/{id}', [JenisHewanController::class, 'destroy'])->name('jenis-hewan.destroy');
+    Route::patch('/jenis-hewan/{id}/restore', [JenisHewanController::class, 'restore'])->name('jenis-hewan.restore');
+    Route::delete('/jenis-hewan/{id}/force-delete', [JenisHewanController::class, 'forceDelete'])->name('jenis-hewan.force-delete');
     
     // Ras Hewan - ✅ FIXED ORDER: DELETE FORM BEFORE EDIT
     Route::get('/ras-hewan', [RasHewanController::class, 'index'])->name('ras-hewan.index');
@@ -78,6 +80,9 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     // Edit routes come after specific routes
     Route::get('/ras-hewan/{id}/edit', [RasHewanController::class, 'edit'])->name('ras-hewan.edit');
     Route::put('/ras-hewan/{id}', [RasHewanController::class, 'update'])->name('ras-hewan.update');
+     Route::patch('/ras-hewan/{id}/restore', [RasHewanController::class, 'restore'])->name('ras-hewan.restore');
+    Route::delete('/ras-hewan/{id}/force-delete', [RasHewanController::class, 'forceDelete'])->name('ras-hewan.force-delete');
+    
     
     // Kategori
     Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
@@ -86,6 +91,8 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::get('/kategori/{id}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
     Route::put('/kategori/{id}', [KategoriController::class, 'update'])->name('kategori.update');
     Route::delete('/kategori/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
+    Route::patch('/kategori/{id}/restore', [KategoriController::class, 'restore'])->name('kategori.restore');
+    Route::delete('/kategori/{id}/force-delete', [KategoriController::class, 'forceDelete'])->name('kategori.force-delete');
     
     // Kategori Klinis
     Route::get('/kategori-klinis', [KategoriKlinisController::class, 'index'])->name('kategori-klinis.index');
@@ -94,6 +101,9 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::get('/kategori-klinis/{id}/edit', [KategoriKlinisController::class, 'edit'])->name('kategori-klinis.edit');
     Route::put('/kategori-klinis/{id}', [KategoriKlinisController::class, 'update'])->name('kategori-klinis.update');
     Route::delete('/kategori-klinis/{id}', [KategoriKlinisController::class, 'destroy'])->name('kategori-klinis.destroy');
+    Route::patch('/kategori-klinis/{id}/restore', [KategoriKlinisController::class, 'restore'])->name('kategori-klinis.restore');
+    Route::delete('/kategori-klinis/{id}/force-delete', [KategoriKlinisController::class, 'forceDelete'])->name('kategori-klinis.force-delete');
+    
     
     // Kode Tindakan Terapi
     Route::get('/kode-tindakan-terapi', [KodeTindakanTerapiController::class, 'index'])->name('kode-tindakan-terapi.index');
@@ -102,6 +112,9 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::get('/kode-tindakan-terapi/{id}/edit', [KodeTindakanTerapiController::class, 'edit'])->name('kode-tindakan-terapi.edit');
     Route::put('/kode-tindakan-terapi/{id}', [KodeTindakanTerapiController::class, 'update'])->name('kode-tindakan-terapi.update');
     Route::delete('/kode-tindakan-terapi/{id}', [KodeTindakanTerapiController::class, 'destroy'])->name('kode-tindakan-terapi.destroy');
+    Route::patch('/kode-tindakan-terapi/{id}/restore', [KodeTindakanTerapiController::class, 'restore'])->name('kode-tindakan-terapi.restore');
+    Route::delete('/kode-tindakan-terapi/{id}/force-delete', [KodeTindakanTerapiController::class, 'forceDelete'])->name('kode-tindakan-terapi.force-delete');
+    
     
     // === USER MANAGEMENT ===
     
@@ -114,6 +127,9 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
     Route::post('/user/{id}/reset-password', [UserController::class, 'resetPassword'])->name('user.reset-password');
+    Route::patch('/user/{id}/restore', [UserController::class, 'restore'])->name('user.restore');
+    Route::delete('/user/{id}/force-delete', [UserController::class, 'forceDelete'])->name('user.force-delete');
+
     
     // Role
     Route::get('/role', [RoleController::class, 'index'])->name('role.index');
@@ -122,6 +138,8 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::get('/role/{id}/edit', [RoleController::class, 'edit'])->name('role.edit');
     Route::put('/role/{id}', [RoleController::class, 'update'])->name('role.update');
     Route::delete('/role/{id}', [RoleController::class, 'destroy'])->name('role.destroy');
+    Route::patch('/role/{id}/restore', [RoleController::class, 'restore'])->name('role.restore');
+    Route::delete('/role/{id}/force-delete', [RoleController::class, 'forceDelete'])->name('role.force-delete');
     
     // Role User
     Route::get('/role-user', [RoleUserController::class, 'index'])->name('role-user.index');
@@ -130,6 +148,8 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::get('/role-user/{id}/edit', [RoleUserController::class, 'edit'])->name('role-user.edit');
     Route::put('/role-user/{id}', [RoleUserController::class, 'update'])->name('role-user.update');
     Route::delete('/role-user/{id}', [RoleUserController::class, 'destroy'])->name('role-user.destroy');
+    Route::patch('/role-user/{id}/restore', [RoleUserController::class, 'restore'])->name('role-user.restore');
+    Route::delete('/role-user/{id}/force-delete', [RoleUserController::class, 'forceDelete'])->name('role-user.force-delete');
     
     // === DATA TRANSAKSI ===
     
@@ -140,6 +160,8 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::get('/pemilik/{id}/edit', [PemilikController::class, 'edit'])->name('pemilik.edit');
     Route::put('/pemilik/{id}', [PemilikController::class, 'update'])->name('pemilik.update');
     Route::delete('/pemilik/{id}', [PemilikController::class, 'destroy'])->name('pemilik.destroy');
+    Route::patch('/pemilik/{id}/restore', [PemilikController::class, 'restore'])->name('pemilik.restore');
+    Route::delete('/pemilik/{id}/force-delete', [PemilikController::class, 'forceDelete'])->name('pemilik.force-delete');
     
     // Pet
     Route::get('/pet', [PetController::class, 'index'])->name('pet.index');
@@ -148,6 +170,8 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::get('/pet/{id}/edit', [PetController::class, 'edit'])->name('pet.edit');
     Route::put('/pet/{id}', [PetController::class, 'update'])->name('pet.update');
     Route::delete('/pet/{id}', [PetController::class, 'destroy'])->name('pet.destroy');
+    Route::patch('/pet/{id}/restore', [PetController::class, 'restore'])->name('pet.restore');
+    Route::delete('/pet/{id}/force-delete', [PetController::class, 'forceDelete'])->name('pet.force-delete');
     
     // Temu Dokter
     Route::get('/temu-dokter', [TemuDokterController::class, 'index'])->name('temu-dokter.index');
@@ -157,17 +181,21 @@ Route::middleware(['auth', 'isAdministrator'])->prefix('admin')->name('admin.')-
     Route::put('/temu-dokter/{id}', [TemuDokterController::class, 'update'])->name('temu-dokter.update');
     Route::delete('/temu-dokter/{id}', [TemuDokterController::class, 'destroy'])->name('temu-dokter.destroy');
     Route::patch('/temu-dokter/{id}/status/{status}', [TemuDokterController::class, 'updateStatus'])->name('temu-dokter.update-status');
-    
+    Route::patch('/temu-dokter/{id}/restore', [TemuDokterController::class, 'restore'])->name('temu-dokter.restore');
+    Route::delete('/temu-dokter/{id}/force-delete', [TemuDokterController::class, 'forceDelete'])->name('temu-dokter.force-delete');
+
     // Rekam Medis
     Route::get('/rekam-medis', [RekamMedisController::class, 'index'])->name('rekam-medis.index');
     Route::get('/rekam-medis/create', [RekamMedisController::class, 'create'])->name('rekam-medis.create');
     Route::post('/rekam-medis', [RekamMedisController::class, 'store'])->name('rekam-medis.store');
-    Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])->name('rekam-medis.show');
+    Route::get('/rek    // Rekam Medisam-medis/{id}', [RekamMedisController::class, 'show'])->name('rekam-medis.show');
     Route::get('/rekam-medis/{id}/edit', [RekamMedisController::class, 'edit'])->name('rekam-medis.edit');
     Route::put('/rekam-medis/{id}', [RekamMedisController::class, 'update'])->name('rekam-medis.update');
     Route::delete('/rekam-medis/{id}', [RekamMedisController::class, 'destroy'])->name('rekam-medis.destroy');
     Route::post('/rekam-medis/{id}/add-detail', [RekamMedisController::class, 'addDetail'])->name('rekam-medis.add-detail');
     Route::delete('/rekam-medis/{id}/detail/{detailId}', [RekamMedisController::class, 'removeDetail'])->name('rekam-medis.remove-detail');
+    Route::patch('/rekam-medis/{id}/restore', [RekamMedisController::class, 'restore'])->name('rekam-medis.restore');
+    Route::delete('/rekam-medis/{id}/force-delete', [RekamMedisController::class, 'forceDelete'])->name('rekam-medis.force-delete');
 });
 
 /*

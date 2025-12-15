@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SoftDeletesWithUser;
 
 class RoleUser extends Model
 {
+    use SoftDeletesWithUser;
+
     protected $table = 'role_user';
     protected $primaryKey = 'idrole_user';
     public $incrementing = true;
@@ -21,15 +25,19 @@ class RoleUser extends Model
     // 🔗 Relasi ke User (Many to One)
     public function user()
     {
-        return $this->belongsTo(User::class, 'iduser', 'iduser');
+        return $this->belongsTo(User::class, 'iduser', 'iduser')->withTrashed();
     }
 
     // 🔗 Relasi ke Role (Many to One)
     public function role()
     {
-        return $this->belongsTo(Role::class, 'idrole', 'idrole');
+        return $this->belongsTo(Role::class, 'idrole', 'idrole')->withTrashed();
     }
 
+    public function roleWithTrashed()
+    {
+        return $this->belongsTo(Role::class, 'idrole')->withTrashed();
+    }
     // 🔗 Relasi ke TemuDokter (One to Many)
     public function temuDokter()
     {

@@ -15,16 +15,46 @@ class RekamMedisController extends Controller
     /**
      * Display a listing of rekam medis
      */
-    public function index()
-    {
-        $rekamMedis = RekamMedis::with([
-            'temuDokter.pet.pemilik.user',
+      public function index(Request $request)
+{
+    $query = RekamMedis::query();
+
+    // filter soft delete
+    if ($request->trashed == 'only') {
+        $query->onlyTrashed();      // hanya data terhapus
+    } elseif ($request->trashed == 'with') {
+        $query->withTrashed();      // semua data
+    }
+
+   $rekamMedis = $query->with(['temuDokter', 'details' => function($q) {
+        $q->withTrashed(); // Load relasi soft delete juga
+    }, 'temuDokter.pet.pemilik.user',
             'temuDokter.pet.ras.jenisHewan',
             'temuDokter.roleUser.user',
-            'details.tindakan'
-        ])->orderBy('created_at', 'desc')->get();
+            'details.tindakan'])->orderBy('created_at', 'desc')->get();
+
+    return view('admin.rekam-medis.index', compact('rekamMedis'));
+    }
+
+    public function restore($id)
+    {
+        $rekamMedis = RekamMedis ::withTrashed()->findOrFail($id);
+        $rekamMedis->restore();
         
-        return view('Admin.rekam-medis.index', compact('rekamMedis'));
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $rekamMedis = RekamMedis::withTrashed()->findOrFail($id);
+        $rekamMedis->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
     }
 
     /**
@@ -46,6 +76,7 @@ class RekamMedisController extends Controller
         
         return view('Admin.rekam-medis.create', compact('temuDokter', 'dokter'));
     }
+    
 
     /**
      * Store a newly created rekam medis

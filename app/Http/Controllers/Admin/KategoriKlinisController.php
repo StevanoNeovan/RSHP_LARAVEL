@@ -8,11 +8,45 @@ use App\Models\KategoriKlinis;
 
 class KategoriKlinisController extends Controller
 {
-    public function index()
-    {
-        $kategoriKlinis = KategoriKlinis::all();
-        return view('admin.kategori-klinis.index', compact('kategoriKlinis'));
+    public function index(Request $request)
+{
+    $query = KategoriKlinis::query();
+
+    // filter soft delete
+    if ($request->trashed == 'only') {
+        $query->onlyTrashed();     
+    } elseif ($request->trashed == 'with') {
+        $query->withTrashed();     
     }
+
+    $kategoriKlinis = $query->get();
+
+    return view('admin.kategori-klinis.index', compact('kategoriKlinis'));
+    }
+    /**
+     * Restore soft deleted record
+     */
+    public function restore($id)
+    {
+        $kategoriKlinis= KategoriKlinis::withTrashed()->findOrFail($id);
+        $kategoriKlinis->restore();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $kategoriKlinis = KategoriKlinis::withTrashed()->findOrFail($id);
+        $kategoriKlinis->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
+    }
+
 
     public function create()
     {

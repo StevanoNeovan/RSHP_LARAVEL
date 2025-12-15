@@ -10,10 +10,43 @@ use App\Models\KategoriKlinis;
 
 class KodeTindakanTerapiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
+{
+    $query = KodeTindakanTerapi::query();
+
+    // filter soft delete
+    if ($request->trashed == 'only') {
+        $query->onlyTrashed();      
+    } elseif ($request->trashed == 'with') {
+        $query->withTrashed();      
+    }
+
+    $kodeTindakanTerapi = $query->get();
+
+    return view('admin.kode-tindakan-terapi.index', compact('kodeTindakanTerapi'));
+    }
+    /**
+     * Restore soft deleted record
+     */
+    public function restore($id)
     {
-        $kodeTindakanTerapi = KodeTindakanTerapi::with(['kategori', 'kategoriKlinis'])->get();
-        return view('admin.kode-tindakan-terapi.index', compact('kodeTindakanTerapi'));
+        $kodeTindakanTerapi = KodeTindakanTerapi::withTrashed()->findOrFail($id);
+        $kodeTindakanTerapi->restore();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $kodeTindakanTerapi = KodeTindakanTerapi::withTrashed()->findOrFail($id);
+        $kodeTindakanTerapi->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
     }
 
     public function create()

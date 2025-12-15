@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SoftDeletesWithUser;
 
 class Dokter extends Model
 {
+    use SoftDeletesWithUser;
     protected $table = 'dokter';
     protected $primaryKey = 'id_dokter';
-    public $timestamps = false; // Sesuaikan jika tabel punya created_at/updated_at
+    public $timestamps = false;
 
     protected $fillable = [
         'alamat',
@@ -34,10 +37,10 @@ class Dokter extends Model
         return $this->hasOneThrough(
             RoleUser::class,
             User::class,
-            'iduser', // Foreign key on users table
-            'iduser', // Foreign key on role_user table
-            'iduser', // Local key on dokter table
-            'iduser'  // Local key on users table
+            'iduser', 
+            'iduser', 
+            'iduser', 
+            'iduser'  
         );
     }
 

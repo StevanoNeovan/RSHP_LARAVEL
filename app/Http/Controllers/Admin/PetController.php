@@ -14,12 +14,44 @@ class PetController extends Controller
     /**
      * Display a listing of pets
      */
-    public function index()
-    {
-        $pets = Pet::with(['pemilik.user', 'ras.jenisHewan'])->get();
-        return view('Admin.pet.index', compact('pets'));
+     public function index(Request $request)
+{
+    $query = Pet::query();
+
+    // filter soft delete
+    if ($request->trashed == 'only') {
+        $query->onlyTrashed();      // hanya data terhapus
+    } elseif ($request->trashed == 'with') {
+        $query->withTrashed();      // semua data
     }
 
+   $pets= $query->with(['pemilik', 'ras' => function($q) {
+        $q->withTrashed(); // Load relasi soft delete juga
+    }, 'pemilik.user', 'ras.jenisHewan'])->get();
+
+    return view('admin.pet.index', compact('pets'));
+    }
+
+    public function restore($id)
+    {
+        $pets = Pet::withTrashed()->findOrFail($id);
+        $pets->restore();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $pets = Pet::withTrashed()->findOrFail($id);
+        $pets->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
+    }
     /**
      * Show the form for creating a new pet
      */

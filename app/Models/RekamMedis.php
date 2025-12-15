@@ -3,14 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SoftDeletesWithUser;
 
 class RekamMedis extends Model
 {
+    use SoftDeletesWithUser;
+    
     protected $table = 'rekam_medis';
     protected $primaryKey = 'idrekam_medis';
     public $incrementing = true;
     protected $keyType = 'int';
-    public $timestamps = false; // karena kita pakai created_at manual
+    public $timestamps = false;
 
     protected $fillable = [
         'idreservasi_dokter',

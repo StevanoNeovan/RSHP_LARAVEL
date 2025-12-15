@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SoftDeletesWithUser;
+
 
 class Kategori extends Model
 {
+    use SoftDeletesWithUser;
     protected $table = 'kategori';
     protected $primaryKey = 'idkategori';
     public $incrementing = true;

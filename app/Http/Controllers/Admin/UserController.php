@@ -18,10 +18,45 @@ class UserController extends Controller
     /**
      * Display a listing of users
      */
-    public function index()
+    public function index(Request $request)
+{
+    $query = User::query();
+
+    // filter soft delete
+    if ($request->trashed == 'only') {
+        $query->onlyTrashed();      
+    } elseif ($request->trashed == 'with') {
+        $query->withTrashed();      
+    }
+
+   $users = $query->with(['roleUser' => function($q) {
+        $q->withTrashed(); 
+    }, 'roleUser.role', 'pemilik'])->get();
+
+    return view('admin.user.index', compact('users'));
+    }
+    /**
+     * Restore soft deleted record
+     */
+    public function restore($id)
     {
-        $users = User::with(['roleUser.role', 'pemilik'])->get();
-        return view('Admin.user.index', compact('users'));
+        $user = User::withTrashed()->findOrFail($id);
+        $user->restore();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $user->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
     }
 
     /**

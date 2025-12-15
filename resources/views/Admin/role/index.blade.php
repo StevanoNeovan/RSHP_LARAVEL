@@ -231,6 +231,113 @@
             grid-template-columns: 1fr;
         }
     }
+
+    .role-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    }
+
+    .role-status.aktif {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .role-status.terhapus {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* ===== Filter Tabs ===== */
+    .filter-tabs {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    /* ===== Alert ===== */
+    .alert {
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 14px;
+    }
+
+    /* ===== Status Badge Floating ===== */
+    .role-status {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .role-status.aktif {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .role-status.terhapus {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* ===== Actions Button Layout ===== */
+    .role-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .role-actions form {
+        margin: 0;
+    }
+
+    .role-actions .btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    /* ===== Role Meta (Deleted By) ===== */
+.role-meta {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.role-meta i {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.role-meta strong {
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.role-meta .meta-time {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+
 </style>
 
 <!-- Statistics Summary -->
@@ -276,6 +383,33 @@
     </a>
 </div>
 
+{{-- Filter Tabs --}}
+<div class="filter-tabs">
+    <a href="{{ route('admin.role.index') }}"
+       class="btn {{ !request('trashed') ? 'btn-primary' : 'btn-secondary' }}">
+        <i class="fas fa-list"></i> Aktif
+    </a>
+
+    <a href="{{ route('admin.role.index', ['trashed' => 'only']) }}"
+       class="btn {{ request('trashed') == 'only' ? 'btn-danger' : 'btn-secondary' }}">
+        <i class="fas fa-trash"></i> Terhapus
+    </a>
+
+    <a href="{{ route('admin.role.index', ['trashed' => 'with']) }}"
+       class="btn {{ request('trashed') == 'with' ? 'btn-warning' : 'btn-secondary' }}">
+        <i class="fas fa-archive"></i> Semua
+    </a>
+</div>
+
+{{-- Warning Alert --}}
+@if(request('trashed'))
+<div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle"></i>
+    Menampilkan data yang sudah dihapus.
+    <a href="{{ route('admin.kode-tindakan-terapi.index') }}" class="fw-bold">Lihat data aktif</a>
+</div>
+@endif
+
 <!-- Role Cards -->
 @if($role->count() > 0)
     <div class="role-grid">
@@ -310,42 +444,90 @@
                 $userCount = \App\Models\RoleUser::where('idrole', $r->idrole)->where('status', 1)->count();
             @endphp
             
-            <div class="role-card {{ $roleClass }}">
+             <div class="role-card {{ $roleClass }}">
+
+                {{-- STATUS BADGE --}}
+                @if($r->trashed())
+                    <div class="role-status terhapus">
+                        <i class="fas fa-trash"></i> Terhapus
+                    </div>
+                @else
+                    <div class="role-status aktif">
+                        <i class="fas fa-check-circle"></i> Aktif
+                    </div>
+                @endif
+
+                {{-- ICON --}}
                 <div class="role-icon">
                     <i class="fas {{ $iconClass }}"></i>
                 </div>
+
+                {{-- ROLE INFO --}}
                 <div class="role-name">{{ $r->nama_role }}</div>
                 <div class="role-id">Role ID: {{ $r->idrole }}</div>
-                
+
+                {{-- STATS --}}
                 <div class="role-stats">
                     <div class="number">{{ $userCount }}</div>
                     <div class="label">User Aktif</div>
                 </div>
-                
+
+                {{-- ACTIONS --}}
                 <div class="role-actions">
-                    <a href="{{ route('admin.role.edit', $r->idrole) }}" class="btn btn-warning btn-sm">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                    <form action="{{ route('admin.role.destroy', $r->idrole) }}" method="POST" style="flex: 1;" onsubmit="return confirm('Yakin ingin menghapus role {{ $r->nama_role }}? Pastikan tidak ada user yang menggunakan role ini.')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">
-                            <i class="fas fa-trash"></i> Hapus
-                        </button>
-                    </form>
+                    @if($r->trashed())
+                        <form action="{{ route('admin.role.restore', $r->idrole) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <button class="btn btn-success btn-sm">
+                                <i class="fas fa-undo"></i> Restore
+                            </button>
+                        </form>
+
+                        <form action="{{ route('admin.role.force-delete', $r->idrole) }}"
+                            method="POST"
+                            onsubmit="return confirm('PERMANEN! Data tidak bisa dikembalikan. Yakin?')">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Hapus Permanen
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('admin.role.edit', $r->idrole) }}"
+                        class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+
+                        <form action="{{ route('admin.role.destroy', $r->idrole) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </form>
+                    @endif
                 </div>
+
+                {{-- DELETED META --}}
+                @if($r->trashed() && $r->deleted_by)
+                    <div class="role-meta">
+                        <i class="fas fa-user"></i>
+                        <div>
+                            <strong>{{ $r->deletedBy->nama ?? 'Unknown' }}</strong>
+                            <div class="meta-time">
+                                {{ \Carbon\Carbon::parse($r->deleted_at)->format('d M Y, H:i') }}
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
+
         @endforeach
     </div>
 @else
     <div class="empty-state">
         <i class="fas fa-user-tag"></i>
         <h3>Belum Ada Data Role</h3>
-        <p>Silakan tambahkan role untuk sistem</p>
-        <a href="{{ route('admin.role.create') }}" class="btn btn-primary" style="margin-top: 16px;">
-            <i class="fas fa-plus"></i>
-            Tambah Role Pertama
-        </a>
     </div>
 @endif
 @endsection

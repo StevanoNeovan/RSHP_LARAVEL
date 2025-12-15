@@ -10,10 +10,42 @@ use App\Models\Role;
 
 class RoleUserController extends Controller
 {
-    public function index()
+   public function index(Request $request)
+{
+    $query = RoleUser::query();
+
+    // Filter hanya untuk role_user
+    if ($request->trashed === 'only') {
+        $query->onlyTrashed();
+    } elseif ($request->trashed === 'with') {
+        $query->withTrashed();
+    }
+
+    $roleUsers = $query->with(['user', 'role', 'deletedBy'])->get();
+
+    return view('admin.role-user.index', compact('roleUsers'));
+}
+
+
+     public function restore($id)
     {
-        $roleUsers = RoleUser::with(['user', 'role'])->get();
-        return view('admin.role-user.index', compact('roleUsers'));
+        $roleUser = RoleUser::withTrashed()->findOrFail($id);
+        $roleUser->restore();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $roleUser = RoleUser ::withTrashed()->findOrFail($id);
+        $roleUser->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
     }
 
     public function create()

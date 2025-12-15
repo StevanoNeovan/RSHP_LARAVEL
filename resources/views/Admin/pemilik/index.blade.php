@@ -143,6 +143,24 @@
         text-decoration: underline;
     }
 
+     /* ===== Badge ===== */
+    .badge {
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
     .badge-count {
         background: var(--primary-color);
         color: white;
@@ -238,6 +256,34 @@
             flex-direction: column;
         }
     }
+
+     /* ===== Filter Tabs ===== */
+    .filter-tabs {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    /* ===== Alert ===== */
+    .alert {
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 14px;
+    }
+
+    /* ===== Action Buttons ===== */
+    .action-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    th.nama-kategori,
+    td.nama-kategori {
+        text-align: left;
+    }
+
 </style>
 
 <!-- Statistics -->
@@ -271,6 +317,34 @@
     </div>
 </div>
 
+{{-- Filter Tabs --}}
+<div class="filter-tabs">
+    <a href="{{ route('admin.pemilik.index') }}"
+       class="btn {{ !request('trashed') ? 'btn-primary' : 'btn-secondary' }}">
+        <i class="fas fa-list"></i> Aktif
+    </a>
+
+    <a href="{{ route('admin.pemilik.index', ['trashed' => 'only']) }}"
+       class="btn {{ request('trashed') == 'only' ? 'btn-danger' : 'btn-secondary' }}">
+        <i class="fas fa-trash"></i> Terhapus
+    </a>
+
+    <a href="{{ route('admin.pemilik.index', ['trashed' => 'with']) }}"
+       class="btn {{ request('trashed') == 'with' ? 'btn-warning' : 'btn-secondary' }}">
+        <i class="fas fa-archive"></i> Semua
+    </a>
+</div>
+
+{{-- Warning Alert --}}
+@if(request('trashed'))
+<div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle"></i>
+    Menampilkan data yang sudah dihapus.
+    <a href="{{ route('admin.pemilik.index') }}" class="fw-bold">Lihat data aktif</a>
+</div>
+@endif
+
+{{-- Table Container --}}
 <div class="table-container">
     <div class="table-header">
         <h2 class="table-title">
@@ -290,12 +364,14 @@
         <table id="pemilikTable">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Nama Pemilik</th>
-                    <th>Kontak</th>
-                    <th>Alamat</th>
-                    <th>Pet Terdaftar</th>
-                    <th>Aksi</th>
+                    <th class="nama-kategori">No</th>
+                    <th class="nama-kategori">Nama Pemilik</th>
+                    <th class="nama-kategori">Kontak</th>
+                    <th class="nama-kategori">Alamat</th>
+                    <th class="nama-kategori">Pet Terdaftar</th>
+                    <th class="nama-kategori">Status</th>
+                    <th class="nama-kategori">Dihapus Oleh</th>
+                    <th class="nama-kategori">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -336,19 +412,65 @@
                         @endif
                     </td>
                     <td>
-                        <div class="btn-group">
-                            <a href="{{ route('admin.pemilik.edit', $p->idpemilik) }}" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <form action="{{ route('admin.pemilik.destroy', $p->idpemilik) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus pemilik {{ $p->user->nama }}? Pastikan tidak ada pet yang terdaftar.')">
+                    @if($p->trashed())
+                        <span class="badge badge-danger">Terhapus</span>
+                    @else
+                        <span class="badge badge-success">Aktif</span>
+                    @endif
+                    </td>
+                    <td>
+                            @if($p->trashed() && $p->deleted_by)
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-user" style="color: #6b7280;"></i>
+                                    <div>
+                                        <strong>{{ $p->deletedBy->nama ?? 'Unknown' }}</strong><br>
+                                        <small style="color: #6b7280;">
+                                            {{ \Carbon\Carbon::parse($p->deleted_at)->format('d M Y, H:i') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            @else
+                                <span style="color: #9ca3af;">-</span>
+                            @endif
+                        </td>
+                    <td>
+                    <div class="action-group">
+                        @if($p->trashed())
+                            <form action="{{ route('admin.pemilik.restore', $p->idpemilik) }}"
+                                  method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button class="btn btn-success btn-sm">
+                                    <i class="fas fa-undo"></i> Restore
+                                </button>
+                            </form>
+
+                            <form action="{{ route('admin.pemilik.force-delete', $p->idpemilik) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('PERMANEN! Data tidak bisa dikembalikan. Yakin?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">
+                                <button class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Hapus Permanen
+                                </button>
+                            </form>
+                        @else
+                            <a href="{{ route('admin.pemilik.edit', $p->idpemilik) }}"
+                               class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+
+                            <form action="{{ route('admin.pemilik.destroy', $p->idpemilik) }}"
+                                  method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger btn-sm">
                                     <i class="fas fa-trash"></i> Hapus
                                 </button>
                             </form>
-                        </div>
-                    </td>
+                        @endif
+                    </div>
+                </td>
                 </tr>
                 @endforeach
             </tbody>

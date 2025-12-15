@@ -10,11 +10,45 @@ use Illuminate\Support\Facades\DB;
 class JenisHewanController extends Controller
 {
     // Menampilkan semua data (untuk view)
-    public function index()
-    {
-        $jenisHewan = JenisHewan::all();
-        return view('admin.jenis-hewan.index', compact('jenisHewan'));
+  public function index(Request $request)
+{
+    $query = JenisHewan::query();
+
+    // filter soft delete
+    if ($request->trashed == 'only') {
+        $query->onlyTrashed();     
+    } elseif ($request->trashed == 'with') {
+        $query->withTrashed();     
     }
+
+    $jenisHewan = $query->get();
+
+    return view('admin.jenis-hewan.index', compact('jenisHewan'));
+    }
+    /**
+     * Restore soft deleted record
+     */
+    public function restore($id)
+    {
+        $jenisHewan= JenisHewan::withTrashed()->findOrFail($id);
+        $jenisHewan->restore();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $jenisHewan = JenisHewan::withTrashed()->findOrFail($id);
+        $jenisHewan->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
+    }
+
 
     // Menampilkan form tambah
     public function create()
@@ -22,7 +56,7 @@ class JenisHewanController extends Controller
         return view('admin.jenis-hewan.create');
     }
 
-    // Menyimpan data baru (Eloquent)
+    // Menyimpan data baru
     public function store(Request $request)
     {
         $validated = $this->validateJenisHewan($request);
@@ -39,7 +73,7 @@ class JenisHewanController extends Controller
         return view('admin.jenis-hewan.edit', compact('jenisHewan'));
     }
 
-    // Update data (Eloquent)
+    // Update data 
     public function update(Request $request, $id)
     {
         $validated = $this->validateJenisHewan($request);
@@ -53,7 +87,7 @@ class JenisHewanController extends Controller
             ->with('success', 'Jenis Hewan berhasil diupdate');
     }
 
-    // Hapus data (Eloquent)
+    // Hapus data
     public function destroy($id)
     {
         $jenisHewan = JenisHewan::findOrFail($id);
@@ -63,9 +97,8 @@ class JenisHewanController extends Controller
             ->with('success', 'Jenis Hewan berhasil dihapus');
     }
 
-    // ================= Query Builder (Admin JSON API) =================
+    // ================= Query Builder =================
 
-    // GET /admin/jenis-hewan/query?search=...&page=1&per_page=10
     public function indexQuery(Request $request)
     {
         $search = trim((string) $request->query('search', ''));
@@ -94,7 +127,6 @@ class JenisHewanController extends Controller
         ]);
     }
 
-    // GET /admin/jenis-hewan/{id}/query
     public function showQuery($id)
     {
         $row = DB::table('jenis_hewan')
@@ -109,7 +141,6 @@ class JenisHewanController extends Controller
         return response()->json(['data' => $row]);
     }
 
-    // POST /admin/jenis-hewan/query
     public function storeQuery(Request $request)
     {
         $validated = $request->validate([
@@ -123,7 +154,7 @@ class JenisHewanController extends Controller
         return response()->json(['message' => 'Berhasil menambah', 'id' => $id], 201);
     }
 
-    // PUT /admin/jenis-hewan/{id}/query
+
     public function updateQuery(Request $request, $id)
     {
         $validated = $request->validate([
@@ -143,7 +174,7 @@ class JenisHewanController extends Controller
         return response()->json(['message' => 'Berhasil mengupdate']);
     }
 
-    // DELETE /admin/jenis-hewan/{id}/query
+
     public function destroyQuery($id)
     {
         $deleted = DB::table('jenis_hewan')->where('idjenis_hewan', $id)->delete();
@@ -153,8 +184,7 @@ class JenisHewanController extends Controller
         return response()->json(['message' => 'Berhasil menghapus']);
     }
 
-    // Report sederhana: jumlah ras per jenis hewan
-    // GET /admin/jenis-hewan/report/jumlah-ras
+
     public function reportJumlahRas()
     {
         $rows = DB::table('jenis_hewan as j')

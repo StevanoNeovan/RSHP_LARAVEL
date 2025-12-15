@@ -4,16 +4,18 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SoftDeletesWithUser;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, SoftDeletesWithUser;
 
     protected $table = 'user';
     protected $primaryKey = 'iduser';
     public $incrementing = true;
     protected $keyType = 'int';
-    public $timestamps = false; // ← IMPORTANT: Table doesn't have created_at/updated_at
+    public $timestamps = false; 
 
     protected $fillable = [
         'nama',
@@ -30,7 +32,7 @@ class User extends Authenticatable
      */
     public function roleUser()
     {
-        return $this->hasMany(RoleUser::class, 'iduser', 'iduser');
+        return $this->hasMany(RoleUser::class, 'iduser', 'iduser')->withTrashed();
     }
 
     /**

@@ -8,11 +8,45 @@ use App\Models\Role;
 
 class RoleController extends Controller
 {
-    public function index()
-    {
-        $role = Role::all();
-        return view('admin.role.index', compact('role'));
+     public function index(Request $request)
+{
+    $query = Role::query();
+
+    // filter soft delete
+    if ($request->trashed == 'only') {
+        $query->onlyTrashed();      
+    } elseif ($request->trashed == 'with') {
+        $query->withTrashed();      
     }
+
+    $role = $query->get();
+
+    return view('admin.role.index', compact('role'));
+    }
+    /**
+     * Restore soft deleted record
+     */
+    public function restore($id)
+    {
+        $role = Role::withTrashed()->findOrFail($id);
+        $role->restore();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $role = Role ::withTrashed()->findOrFail($id);
+        $role->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
+    }
+
 
     public function create()
     {

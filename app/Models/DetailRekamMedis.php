@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SoftDeletesWithUser;
+
 
 class DetailRekamMedis extends Model
 {
+    use SoftDeletesWithUser;
+
     protected $table = 'detail_rekam_medis';
     protected $primaryKey = 'iddetail_rekam_medis';
     public $incrementing = true;

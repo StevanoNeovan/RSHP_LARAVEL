@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SoftDeletesWithUser;
 
 class Pet extends Model
 {
+    use SoftDeletesWithUser;
+
     protected $table = 'pet';
     protected $primaryKey = 'idpet';
     public $incrementing = true;
@@ -39,7 +43,6 @@ class Pet extends Model
 
     /**
      * Relasi ke TemuDokter (One to Many)
-     * Pet bisa punya banyak temu dokter
      */
     public function temuDokter()
     {
@@ -50,7 +53,6 @@ class Pet extends Model
     
     /**
      * Get rekam medis melalui temu dokter
-     * Usage: $pet->rekamMedisList
      */
     public function getRekamMedisListAttribute()
     {
@@ -63,7 +65,6 @@ class Pet extends Model
 
     /**
      * Get temu dokter list
-     * Usage: $pet->temuDokterList
      */
     public function getTemuDokterListAttribute()
     {

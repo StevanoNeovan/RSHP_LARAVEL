@@ -3,12 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SoftDeletesWithUser;
 
 class Perawat extends Model
 {
+    use SoftDeletesWithUser;
+
     protected $table = 'perawat';
     protected $primaryKey = 'id_perawat';
-    public $timestamps = false; // Sesuaikan jika tabel punya created_at/updated_at
+    public $timestamps = false;
 
     protected $fillable = [
         'alamat',

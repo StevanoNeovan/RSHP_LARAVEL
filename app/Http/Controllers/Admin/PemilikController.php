@@ -12,11 +12,46 @@ class PemilikController extends Controller
     /**
      * Display a listing of pemilik
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $pemilik = Pemilik::with('user')->get();
-        return view('Admin.pemilik.index', compact('pemilik'));
+        $query = Pemilik::query();
+
+        // Filter hanya untuk pemilik
+        if ($request->trashed === 'only') {
+            $query->onlyTrashed();
+        } elseif ($request->trashed === 'with') {
+            $query->withTrashed();
+        }
+
+
+
+        $pemilik = $query->with(['user'])->get();
+
+        return view('admin.pemilik.index', compact('pemilik'));
     }
+
+    public function restore($id)
+    {
+        $pemilik = Pemilik::withTrashed()->findOrFail($id);
+        $pemilik->restore();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $pemilik = Pemilik::withTrashed()->findOrFail($id);
+        $pemilik->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
+    }
+
 
     /**
      * Show the form for creating a new pemilik

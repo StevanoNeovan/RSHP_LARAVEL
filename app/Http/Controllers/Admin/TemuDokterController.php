@@ -14,13 +14,44 @@ class TemuDokterController extends Controller
     /**
      * Display a listing of temu dokter
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $temuDokter = TemuDokter::with(['pet.pemilik.user', 'roleUser.user', 'roleUser.role'])
-            ->orderBy('waktu_daftar', 'desc')
-            ->get();
+    $query = TemuDokter::query();
+
+    // filter soft delete
+    if ($request->trashed == 'only') {
+        $query->onlyTrashed();      // hanya data terhapus
+    } elseif ($request->trashed == 'with') {
+        $query->withTrashed();      // semua data
+    }
+
+   $temuDokter= $query->with(['pet', 'roleUser' => function($q) {
+        $q->withTrashed(); // Load relasi soft delete juga
+    }, 'pet.pemilik.user', 'roleUser.user', 'roleUser.role'])->get();
+
+    return view('admin.temu-dokter.index', compact('temuDokter'));
+    }
+
+     public function restore($id)
+    {
+        $temuDokter = TemuDokter::withTrashed()->findOrFail($id);
+        $temuDokter->restore();
         
-        return view('Admin.temu-dokter.index', compact('temuDokter'));
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $temuDokter = TemuDokter::withTrashed()->findOrFail($id);
+        $temuDokter->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
     }
 
     /**

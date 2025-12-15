@@ -167,11 +167,6 @@
         color: #6b7280;
     }
 
-    .btn-group {
-        display: flex;
-        gap: 8px;
-    }
-
     .btn-sm {
         padding: 6px 12px;
         font-size: 12px;
@@ -242,6 +237,40 @@
         flex-direction: column;
         gap: 4px;
     }
+
+    /* ===== Filter Tabs ===== */
+    .filter-tabs {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    /* ===== Alert ===== */
+    .alert {
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 14px;
+    }
+
+    /* ===== Action Buttons ===== */
+   .action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    }
+
+    .action-group form {
+        margin: 0;
+    }
+
+    th.nama-kategori,
+    td.nama-kategori {
+        text-align: left;
+    }
+
+
 </style>
 
 <!-- Statistics -->
@@ -302,6 +331,34 @@
     </div>
 </div>
 
+{{-- Filter Tabs --}}
+<div class="filter-tabs">
+    <a href="{{ route('admin.user.index') }}"
+       class="btn {{ !request('trashed') ? 'btn-primary' : 'btn-secondary' }}">
+        <i class="fas fa-list"></i> Aktif
+    </a>
+
+    <a href="{{ route('admin.user.index', ['trashed' => 'only']) }}"
+       class="btn {{ request('trashed') == 'only' ? 'btn-danger' : 'btn-secondary' }}">
+        <i class="fas fa-trash"></i> Terhapus
+    </a>
+
+    <a href="{{ route('admin.user.index', ['trashed' => 'with']) }}"
+       class="btn {{ request('trashed') == 'with' ? 'btn-warning' : 'btn-secondary' }}">
+        <i class="fas fa-archive"></i> Semua
+    </a>
+</div>
+
+{{-- Warning Alert --}}
+@if(request('trashed'))
+<div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle"></i>
+    Menampilkan data yang sudah dihapus.
+    <a href="{{ route('admin.kode-tindakan-terapi.index') }}" class="fw-bold">Lihat data aktif</a>
+</div>
+@endif
+
+{{--- Table Card --}}
 <div class="table-container">
     <div class="table-header">
         <h2 class="table-title">
@@ -321,18 +378,20 @@
         <table id="userTable">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>User</th>
-                    <th>Email</th>
-                    <th>Role Aktif</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
+                    <th class="nama-kategori">No</th>
+                    <th class="nama-kategori">User</th>
+                    <th class="nama-kategori">Email</th>
+                    <th class="nama-kategori">Role Aktif</th>
+                    <th class="nama-kategori">Status Role</th>
+                    <th class="nama-kategori">Status User</th>
+                    <th class="nama-kategori">Dihapus Oleh</th>
+                    <th class="nama-kategori">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($users as $index => $user)
                 @php
-                    $activeRoles = $user->roleUser->where('status', 1);
+                    $activeRoles = $user->roleUser->where('status', 1)->where('deleted_at', null);
                     $primaryRole = $activeRoles->first();
                     $roleClass = 'user';
                     if ($primaryRole) {
@@ -394,22 +453,74 @@
                             <span class="badge badge-inactive">Tidak Aktif</span>
                         @endif
                     </td>
+                        <td>
+                            @if($user->trashed())
+                                <span class="badge badge-danger">Terhapus</span>
+                            @else
+                                <span class="badge badge-success">Aktif</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($user->trashed() && $user->deleted_by)
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-user" style="color: #6b7280;"></i>
+                                    <div>
+                                        <strong>{{ $user->deletedBy->nama ?? 'Unknown' }}</strong><br>
+                                        <small style="color: #6b7280;">
+                                            {{ \Carbon\Carbon::parse($user->deleted_at)->format('d M Y, H:i') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            @else
+                                <span style="color: #9ca3af;">-</span>
+                            @endif
+                        </td>
+
                     <td>
-                        <div class="btn-group">
-                            <a href="{{ route('admin.user.show', $user->iduser) }}" class="btn btn-primary btn-sm">
+                        <div class="action-group">
+                            {{-- Detail --}}
+                            <a href="{{ route('admin.user.show', $user->iduser) }}"
+                            class="btn btn-primary btn-sm">
                                 <i class="fas fa-eye"></i> Detail
                             </a>
-                            <a href="{{ route('admin.user.edit', $user->iduser) }}" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            @if($user->iduser != auth()->user()->iduser)
-                            <form action="{{ route('admin.user.destroy', $user->iduser) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus user {{ $user->nama }}? Pastikan tidak ada role atau data terkait.')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i> Hapus
-                                </button>
-                            </form>
+
+                            @if($user->trashed())
+                                {{-- Restore --}}
+                                <form action="{{ route('admin.user.restore', $user->iduser) }}"
+                                    method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-undo"></i> Restore
+                                    </button>
+                                </form>
+
+                                {{-- Force Delete --}}
+                                <form action="{{ route('admin.user.force-delete', $user->iduser) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('PERMANEN! Data tidak bisa dikembalikan. Yakin?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash-alt"></i> Hapus Permanen
+                                    </button>
+                                </form>
+                            @else
+                                {{-- Edit --}}
+                                <a href="{{ route('admin.user.edit', $user->iduser) }}"
+                                class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+
+                                {{-- Delete --}}
+                                <form action="{{ route('admin.user.destroy', $user->iduser) }}"
+                                    method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
+                                </form>
                             @endif
                         </div>
                     </td>
@@ -420,12 +531,7 @@
     @else
         <div class="empty-state">
             <i class="fas fa-users"></i>
-            <h3>Belum Ada Data User</h3>
-            <p>Silakan tambahkan user terlebih dahulu</p>
-            <a href="{{ route('admin.user.create') }}" class="btn btn-primary" style="margin-top: 16px;">
-                <i class="fas fa-plus"></i>
-                Tambah User Pertama
-            </a>
+            <h3>Tidak Ada Data User</h3>
         </div>
     @endif
 </div>

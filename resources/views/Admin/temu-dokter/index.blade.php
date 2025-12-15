@@ -5,393 +5,479 @@
 
 @section('content')
 <style>
-    .filter-tabs {
+    /* ===== General Layout ===== */
+    .page-header {
         display: flex;
-        gap: 12px;
-        margin-bottom: 24px;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
         flex-wrap: wrap;
+        gap: 10px;
     }
 
-    .filter-tab {
-        padding: 10px 20px;
+    /* ===== Stats Cards ===== */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
         background: white;
-        border: 2px solid var(--border-color);
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s ease;
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
         display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: white;
+    }
+
+    .stat-content h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .stat-content p {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    /* Colors for Stats */
+    .bg-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .bg-info { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .bg-success { background: linear-gradient(135deg, #10b981, #059669); }
+    .bg-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+    /* ===== Filters & Controls ===== */
+    .controls-wrapper {
+        background: white;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .status-filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .filter-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        background: white;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
     }
 
-    .filter-tab:hover {
-        background: var(--background-light);
-        border-color: var(--primary-color);
+    .filter-btn:hover {
+        background: #f9fafb;
+        border-color: #d1d5db;
     }
 
-    .filter-tab.active {
-        background: var(--primary-color);
+    .filter-btn.active {
+        background: #2563eb;
         color: white;
-        border-color: var(--primary-color);
+        border-color: #2563eb;
     }
 
-    .badge-status {
-        padding: 6px 14px;
-        border-radius: 20px;
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .view-filters {
+        display: flex;
+        gap: 8px;
+    }
+
+    /* ===== Appointment Card ===== */
+    .appointment-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .apt-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+    }
+
+    .apt-card:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .apt-header {
+        padding: 16px 20px;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .apt-meta h4 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #2563eb;
+        margin: 0;
+    }
+
+    .apt-meta span {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .apt-body {
+        padding: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .info-group {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .info-icon-box {
+        width: 40px;
+        height: 40px;
+        background: #eff6ff;
+        color: #2563eb;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .info-text label {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .info-text p {
+        margin: 0;
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 15px;
+    }
+
+    .apt-footer {
+        padding: 12px 20px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+    }
+
+    .deleted-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #ef4444;
+        background: #fef2f2;
+        padding: 6px 12px;
+        border-radius: 6px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        margin-left: auto; /* Push buttons to right */
+    }
+
+    /* Badges */
+    .badge-pill {
+        padding: 4px 12px;
+        border-radius: 99px;
         font-size: 12px;
         font-weight: 600;
         display: inline-flex;
         align-items: center;
         gap: 6px;
     }
+    
+    .badge-W { background: #fef3c7; color: #b45309; }
+    .badge-P { background: #dbeafe; color: #1d4ed8; }
+    .badge-S { background: #d1fae5; color: #047857; }
+    .badge-B { background: #fee2e2; color: #b91c1c; }
+    .badge-trash { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
 
-    .badge-warning {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .badge-info {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .badge-success {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .badge-danger {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .appointment-card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        border: 1px solid var(--border-color);
-        margin-bottom: 16px;
-        transition: all 0.3s ease;
-    }
-
-    .appointment-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
-    }
-
-    .appointment-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 16px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .appointment-number {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--primary-color);
-        line-height: 1;
-    }
-
-    .appointment-info {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 16px;
-    }
-
-    .info-item {
-        display: flex;
-        align-items: start;
-        gap: 12px;
-    }
-
-    .info-icon {
-        width: 36px;
-        height: 36px;
-        background: var(--background-light);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-color);
-        flex-shrink: 0;
-    }
-
-    .info-details h4 {
-        font-size: 13px;
-        color: var(--text-light);
-        font-weight: 500;
-        margin-bottom: 4px;
-    }
-
-    .info-details p {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-dark);
-    }
-
-    .appointment-actions {
-        display: flex;
-        gap: 8px;
-        padding-top: 16px;
-        border-top: 1px solid var(--border-color);
-    }
-
-    .stats-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .stat-mini-card {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        border: 1px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .stat-mini-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        color: white;
-    }
-
-    .stat-mini-icon.warning {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    }
-
-    .stat-mini-icon.info {
-        background: linear-gradient(135deg, #60a5fa, #3b82f6);
-    }
-
-    .stat-mini-icon.success {
-        background: linear-gradient(135deg, #34d399, #10b981);
-    }
-
-    .stat-mini-icon.danger {
-        background: linear-gradient(135deg, #f87171, #ef4444);
-    }
-
-    .stat-mini-content h3 {
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--text-dark);
-        line-height: 1;
-    }
-
-    .stat-mini-content p {
-        font-size: 13px;
-        color: var(--text-light);
-        margin-top: 4px;
-    }
+    /* Buttons override */
+    .btn-sm { padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+    form { margin: 0; }
 </style>
 
-<!-- Statistics -->
-<div class="stats-cards">
-    <div class="stat-mini-card">
-        <div class="stat-mini-icon warning">
-            <i class="fas fa-clock"></i>
-        </div>
-        <div class="stat-mini-content">
+<div class="stats-container">
+    <div class="stat-card">
+        <div class="stat-icon bg-warning"><i class="fas fa-clock"></i></div>
+        <div class="stat-content">
             <h3>{{ $temuDokter->where('status', 'W')->count() }}</h3>
             <p>Menunggu</p>
         </div>
     </div>
-    <div class="stat-mini-card">
-        <div class="stat-mini-icon info">
-            <i class="fas fa-stethoscope"></i>
-        </div>
-        <div class="stat-mini-content">
+    <div class="stat-card">
+        <div class="stat-icon bg-info"><i class="fas fa-stethoscope"></i></div>
+        <div class="stat-content">
             <h3>{{ $temuDokter->where('status', 'P')->count() }}</h3>
-            <p>Dalam Pemeriksaan</p>
+            <p>Pemeriksaan</p>
         </div>
     </div>
-    <div class="stat-mini-card">
-        <div class="stat-mini-icon success">
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="stat-mini-content">
+    <div class="stat-card">
+        <div class="stat-icon bg-success"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-content">
             <h3>{{ $temuDokter->where('status', 'S')->count() }}</h3>
             <p>Selesai</p>
         </div>
     </div>
-    <div class="stat-mini-card">
-        <div class="stat-mini-icon danger">
-            <i class="fas fa-times-circle"></i>
-        </div>
-        <div class="stat-mini-content">
+    <div class="stat-card">
+        <div class="stat-icon bg-danger"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-content">
             <h3>{{ $temuDokter->where('status', 'B')->count() }}</h3>
             <p>Batal</p>
         </div>
     </div>
 </div>
 
-<!-- Filter Tabs -->
-<div class="filter-tabs">
-    <button class="filter-tab active" data-filter="all">
-        <i class="fas fa-list"></i>
-        Semua ({{ $temuDokter->count() }})
-    </button>
-    <button class="filter-tab" data-filter="W">
-        <i class="fas fa-clock"></i>
-        Menunggu ({{ $temuDokter->where('status', 'W')->count() }})
-    </button>
-    <button class="filter-tab" data-filter="P">
-        <i class="fas fa-stethoscope"></i>
-        Dalam Pemeriksaan ({{ $temuDokter->where('status', 'P')->count() }})
-    </button>
-    <button class="filter-tab" data-filter="S">
-        <i class="fas fa-check-circle"></i>
-        Selesai ({{ $temuDokter->where('status', 'S')->count() }})
-    </button>
-    <button class="filter-tab" data-filter="B">
-        <i class="fas fa-times-circle"></i>
-        Batal ({{ $temuDokter->where('status', 'B')->count() }})
-    </button>
+<div class="controls-wrapper">
+    <div class="status-filters">
+        <button class="filter-btn active" data-filter="all">
+            <i class="fas fa-th-large"></i> Semua
+        </button>
+        <button class="filter-btn" data-filter="W">
+            <i class="fas fa-clock"></i> Menunggu
+        </button>
+        <button class="filter-btn" data-filter="P">
+            <i class="fas fa-user-md"></i> Diperiksa
+        </button>
+        <button class="filter-btn" data-filter="S">
+            <i class="fas fa-check"></i> Selesai
+        </button>
+        <button class="filter-btn" data-filter="B">
+            <i class="fas fa-ban"></i> Batal
+        </button>
+    </div>
+
+    <div class="action-bar">
+        <div class="view-filters">
+            <a href="{{ route('admin.temu-dokter.index') }}"
+               class="btn {{ !request('trashed') ? 'btn-primary' : 'btn-outline-secondary' }} btn-sm">
+                <i class="fas fa-folder-open"></i> Data Aktif
+            </a>
+            <a href="{{ route('admin.temu-dokter.index', ['trashed' => 'only']) }}"
+               class="btn {{ request('trashed') == 'only' ? 'btn-danger' : 'btn-outline-danger' }} btn-sm">
+                <i class="fas fa-trash"></i> Sampah
+            </a>
+            <a href="{{ route('admin.temu-dokter.index', ['trashed' => 'with']) }}"
+               class="btn {{ request('trashed') == 'with' ? 'btn-warning' : 'btn-outline-secondary' }} btn-sm">
+                <i class="fas fa-archive"></i> Semua
+            </a>
+        </div>
+
+        <a href="{{ route('admin.temu-dokter.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Tambah Reservasi
+        </a>
+    </div>
 </div>
 
-<!-- Action Button -->
-<div style="margin-bottom: 24px;">
-    <a href="{{ route('admin.temu-dokter.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i>
-        Tambah Reservasi
-    </a>
+@if(request('trashed'))
+<div class="alert alert-warning mb-4 shadow-sm border-0">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    Menampilkan data yang sudah dihapus. 
+    <a href="{{ route('admin.kode-tindakan-terapi.index') }}" class="fw-bold text-dark text-decoration-underline">Kembali ke data aktif</a>
 </div>
+@endif
 
-<!-- Appointments List -->
-<div id="appointmentsList">
+<div class="appointment-list" id="appointmentsList">
     @forelse($temuDokter as $td)
-        <div class="appointment-card" data-status="{{ $td->status }}">
-            <div class="appointment-header">
-                <div>
-                    <div class="appointment-number">No. {{ $td->no_urut }}</div>
-                    <div style="font-size: 13px; color: var(--text-light); margin-top: 4px;">
-                        {{ \Carbon\Carbon::parse($td->waktu_daftar)->format('d M Y, H:i') }}
-                    </div>
+        <div class="apt-card" data-status="{{ $td->status }}">
+            <div class="apt-header">
+                <div class="apt-meta">
+                    <h4>No. Urut {{ $td->no_urut }}</h4>
+                    <span><i class="far fa-calendar-alt"></i> {{ \Carbon\Carbon::parse($td->waktu_daftar)->format('d M Y, H:i') }}</span>
                 </div>
-                <span class="badge-status badge-{{ App\Http\Controllers\Admin\TemuDokterController::getStatusBadge($td->status) }}">
-                    <i class="fas fa-{{ App\Http\Controllers\Admin\TemuDokterController::getStatusIcon($td->status) }}"></i>
-                    {{ App\Http\Controllers\Admin\TemuDokterController::getStatusText($td->status) }}
-                </span>
+                
+                @if($td->trashed())
+                    <span class="badge-pill badge-trash">
+                        <i class="fas fa-trash-alt"></i> Terhapus
+                    </span>
+                @else
+                    <span class="badge-pill badge-{{ $td->status }}">
+                        <i class="fas fa-{{ App\Http\Controllers\Admin\TemuDokterController::getStatusIcon($td->status) }}"></i>
+                        {{ App\Http\Controllers\Admin\TemuDokterController::getStatusText($td->status) }}
+                    </span>
+                @endif
             </div>
 
-            <div class="appointment-info">
-                <div class="info-item">
-                    <div class="info-icon">
+            <div class="apt-body">
+                <div class="info-group">
+                    <div class="info-icon-box">
                         <i class="fas fa-paw"></i>
                     </div>
-                    <div class="info-details">
-                        <h4>Pet</h4>
+                    <div class="info-text">
+                        <label>Pasien (Pet)</label>
                         <p>{{ $td->pet->nama }}</p>
                     </div>
                 </div>
 
-                <div class="info-item">
-                    <div class="info-icon">
+                <div class="info-group">
+                    <div class="info-icon-box">
                         <i class="fas fa-user"></i>
                     </div>
-                    <div class="info-details">
-                        <h4>Pemilik</h4>
+                    <div class="info-text">
+                        <label>Pemilik</label>
                         <p>{{ $td->pet->pemilik->user->nama }}</p>
                     </div>
                 </div>
 
-                <div class="info-item">
-                    <div class="info-icon">
+                <div class="info-group">
+                    <div class="info-icon-box">
                         <i class="fas fa-user-md"></i>
                     </div>
-                    <div class="info-details">
-                        <h4>Dokter</h4>
+                    <div class="info-text">
+                        <label>Dokter</label>
                         <p>{{ $td->roleUser->user->nama }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="appointment-actions">
-                <a href="{{ route('admin.temu-dokter.edit', $td->idreservasi_dokter) }}" class="btn btn-warning btn-sm">
-                    <i class="fas fa-edit"></i> Edit
-                </a>
-                
-                @if($td->status == 'W')
-                    <form action="{{ route('admin.temu-dokter.update-status', ['id' => $td->idreservasi_dokter, 'status' => 'P']) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="fas fa-play"></i> Mulai Pemeriksaan
-                        </button>
-                    </form>
-                @endif
+            <div class="apt-footer">
+                <div>
+                    @if($td->trashed() && $td->deleted_by)
+                        <div class="deleted-info">
+                            <i class="fas fa-user-slash"></i>
+                            <span>Dihapus: <strong>{{ $td->deletedBy->nama ?? 'Unknown' }}</strong> 
+                            ({{ \Carbon\Carbon::parse($td->deleted_at)->format('d/m H:i') }})</span>
+                        </div>
+                    @endif
+                </div>
 
-                @if($td->status == 'P')
-                    <form action="{{ route('admin.temu-dokter.update-status', ['id' => $td->idreservasi_dokter, 'status' => 'S']) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="btn btn-success btn-sm">
-                            <i class="fas fa-check"></i> Selesaikan
-                        </button>
-                    </form>
-                @endif
+                <div class="action-buttons">
+                    @if($td->trashed())
+                        <form action="{{ route('admin.temu-dokter.restore', $td->idreservasi_dokter) }}" method="POST">
+                            @csrf @method('PATCH')
+                            <button class="btn btn-success btn-sm" title="Pulihkan">
+                                <i class="fas fa-undo"></i> Restore
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.temu-dokter.force-delete', $td->idreservasi_dokter) }}" method="POST" onsubmit="return confirm('PERMANEN! Data tidak bisa dikembalikan. Yakin?')">
+                            @csrf @method('DELETE')
+                            <button class="btn btn-danger btn-sm" title="Hapus Permanen">
+                                <i class="fas fa-times"></i> Hapus
+                            </button>
+                        </form>
+                    @else
+                        @if($td->status == 'W')
+                            <form action="{{ route('admin.temu-dokter.update-status', ['id' => $td->idreservasi_dokter, 'status' => 'P']) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fas fa-stethoscope"></i> Periksa
+                                </button>
+                            </form>
+                        @endif
 
-                @if($td->status != 'B' && $td->status != 'S')
-                    <form action="{{ route('admin.temu-dokter.update-status', ['id' => $td->idreservasi_dokter, 'status' => 'B']) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin membatalkan reservasi ini?')">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            <i class="fas fa-times"></i> Batalkan
-                        </button>
-                    </form>
-                @endif
+                        @if($td->status == 'P')
+                            <form action="{{ route('admin.temu-dokter.update-status', ['id' => $td->idreservasi_dokter, 'status' => 'S']) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <button class="btn btn-success btn-sm">
+                                    <i class="fas fa-check"></i> Selesai
+                                </button>
+                            </form>
+                        @endif
 
-                <form action="{{ route('admin.temu-dokter.destroy', $td->idreservasi_dokter) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus reservasi ini?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="fas fa-trash"></i> Hapus
-                    </button>
-                </form>
+                        <a href="{{ route('admin.temu-dokter.edit', $td->idreservasi_dokter) }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </a>
+
+                        <form action="{{ route('admin.temu-dokter.destroy', $td->idreservasi_dokter) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus reservasi ini?')">
+                            @csrf @method('DELETE')
+                            <button class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    @endif
+                </div>
             </div>
         </div>
     @empty
-        <div class="empty-state" style="text-align: center; padding: 60px 20px;">
-            <i class="fas fa-calendar-times" style="font-size: 64px; color: var(--text-light); opacity: 0.3; margin-bottom: 16px;"></i>
-            <h3>Belum Ada Reservasi</h3>
-            <p style="color: var(--text-light);">Silakan tambahkan reservasi temu dokter</p>
+        <div class="empty-state text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-clipboard-list fa-3x text-muted opacity-25"></i>
+            </div>
+            <h4 class="text-muted">Tidak ada data reservasi</h4>
+            <p class="text-muted small">Coba ubah filter atau tambah data baru.</p>
         </div>
     @endforelse
 </div>
+
 @endsection
 
 @push('scripts')
 <script>
-    // Filter functionality
-    const filterTabs = document.querySelectorAll('.filter-tab');
-    const appointmentCards = document.querySelectorAll('.appointment-card');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const aptCards = document.querySelectorAll('.apt-card');
 
-    filterTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const filter = this.dataset.filter;
-            
-            // Update active tab
-            filterTabs.forEach(t => t.classList.remove('active'));
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active state
+            filterBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            
-            // Filter cards
-            appointmentCards.forEach(card => {
-                if (filter === 'all' || card.dataset.status === filter) {
+
+            const filterValue = this.getAttribute('data-filter');
+
+            aptCards.forEach(card => {
+                if (filterValue === 'all' || card.getAttribute('data-status') === filterValue) {
                     card.style.display = 'block';
                 } else {
                     card.style.display = 'none';

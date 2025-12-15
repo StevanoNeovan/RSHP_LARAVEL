@@ -8,11 +8,46 @@ use App\Models\Kategori;
 
 class KategoriController extends Controller
 {
-    public function index()
-    {
-        $kategori = Kategori::all();
-        return view('admin.kategori.index', compact('kategori'));
+     public function index(Request $request)
+{
+    $query = Kategori::query();
+
+    // filter soft delete
+    if ($request->trashed == 'only') {
+        $query->onlyTrashed();      
+    } elseif ($request->trashed == 'with') {
+        $query->withTrashed();      
     }
+
+    $kategori = $query->get();
+
+    return view('admin.kategori.index', compact('kategori'));
+    }
+    /**
+     * Restore soft deleted record
+     */
+    public function restore($id)
+    {
+        $kategori= Kategori::withTrashed()->findOrFail($id);
+        $kategori->restore();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dipulihkan');
+    }
+
+    /**
+     * Force delete (permanent)
+     */
+    public function forceDelete($id)
+    {
+        $kategori = Kategori::withTrashed()->findOrFail($id);
+        $kategori->forceDelete();
+        
+        return redirect()->back()
+            ->with('success', 'Data berhasil dihapus permanen');
+    }
+
+
 
     public function create()
     {
